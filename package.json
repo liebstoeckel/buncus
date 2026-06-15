@@ -8,6 +8,7 @@
   "scripts": {
     "mock": "bun run packages/mock-github/src/cli.ts",
     "test": "bun test packages",
+    "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check .",
@@ -19,6 +20,7 @@
     "@types/bun": "^1.3.14",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "playwright": "1.60.0"
+    "playwright": "1.60.0",
+    "typescript": "^6.0.3"
   }
 }
