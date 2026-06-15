@@ -5,5 +5,8 @@ dist/
 .DS_Store
 .idea/
 
+# Claude Code session state and git worktrees (.claude/worktrees/*).
+.claude/
+
 # Reference clone of giscus/giscus — kept locally for comparison, not part of buncus.
 giscus-eval/
