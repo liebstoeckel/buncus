@@ -17,8 +17,15 @@ jobs:
     # Only run in the canonical repo; a no-op in forks (which also lack the secret).
     if: github.repository == 'liebstoeckel/buncus'
     runs-on: ubuntu-latest
+    # Surface the per-path outputs the publish jobs gate on. In manifest mode the
+    # action namespaces its outputs by package path, so they are keyed
+    # "packages/buncus--<name>" (accessed via the index syntax below).
+    outputs:
+      release_created: ${{ steps.release.outputs['packages/buncus--release_created'] }}
+      tag_name: ${{ steps.release.outputs['packages/buncus--tag_name'] }}
     steps:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
@@ -26,3 +33,93 @@ jobs:
           # other workflows (e.g. CI on the PR); the default GITHUB_TOKEN does not.
           # Create the secret with Contents: write + Pull requests: write.
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+
+  # Build the multi-arch container and push it to GHCR. Only runs when merging
+  # the release PR actually cut a release (tag + GitHub release already exist).
+  publish-image:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # push to ghcr.io/<owner>/<repo>
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      # QEMU + Buildx so the single Dockerfile builds linux/arm64 as well as
+      # linux/amd64. The arm64 leg compiles the Bun binary under emulation, so it
+      # is slower; drop it from `platforms` if build time becomes a problem.
+      - uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
+      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # built-in token; packages: write is enough
+
+      - uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository }}
+          # Derive the version tags from the release-please tag (e.g. v0.1.0 ->
+          # 0.1.0 and 0.1) and always move :latest.
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.release-please.outputs.tag_name }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release-please.outputs.tag_name }}
+            type=raw,value=latest
+
+      - uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Cross-compile the standalone binary for every supported target and attach the
+  # artifacts (plus a checksum file) to the GitHub release. Bun cross-compiles all
+  # targets from this one Linux runner, so no per-OS build matrix is needed.
+  publish-binaries:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # upload assets to the release
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # server.ts imports the bundled loader/widget/CSS via `with { type: "file" }`,
+      # so the assets must exist before `bun build --compile` can embed them.
+      - name: Build assets
+        run: cd packages/buncus && bun run build:assets
+
+      - name: Compile binaries
+        working-directory: packages/buncus
+        run: |
+          set -euo pipefail
+          mkdir -p dist/release
+          targets="linux-x64 linux-arm64 linux-x64-musl linux-arm64-musl darwin-x64 darwin-arm64 windows-x64"
+          for t in $targets; do
+            out="dist/release/buncus-$t"
+            [ "$t" = "windows-x64" ] && out="$out.exe"
+            echo "::group::compile $t"
+            bun build --compile --target="bun-$t" --outfile "$out" src/server.ts
+            echo "::endgroup::"
+          done
+          ( cd dist/release && sha256sum * > SHA256SUMS.txt )
+          ls -l dist/release
+
+      - name: Upload binaries to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # contents: write is enough to add assets
+        run: gh release upload "${{ needs.release-please.outputs.tag_name }}" packages/buncus/dist/release/* --clobber
