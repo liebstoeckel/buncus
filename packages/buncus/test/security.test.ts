@@ -1,7 +1,7 @@
 // Regression tests for the security-report fixes.
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { generateKeyPairSync } from "node:crypto";
-import { createMockGitHub, type MockGitHubServer } from "@buncus/mock-github";
+import { createMockGitHub, type MockGitHubServer } from "@liebstoeckel/buncus-mock-github";
 import { type Config, setConfig } from "../src/config.ts";
 import { createContext } from "../src/context.ts";
 import { handleApi } from "../src/routes/api.ts";

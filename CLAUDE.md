@@ -18,7 +18,7 @@ bun install
 bun run check                              # Biome lint + format check (read-only gate)
 bun run check:fix                          # apply Biome fixes (formatting, imports, safe lint)
 bun run typecheck                          # tsc --noEmit (typescript is a devDep, tsc 6.x)
-bun test packages                          # full suite, all offline via @buncus/mock-github
+bun test packages                          # full suite, all offline via @liebstoeckel/buncus-mock-github
 
 bun run --cwd packages/buncus compile      # build:assets + bun build --compile -> dist/buncus
 bun run --cwd packages/buncus dev          # hot-reload dev server (run build:assets first)

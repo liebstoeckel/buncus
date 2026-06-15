@@ -1,6 +1,6 @@
-// Public API for @buncus/mock-github.
+// Public API for @liebstoeckel/buncus-mock-github.
 //
-//   import { createMockGitHub } from "@buncus/mock-github";
+//   import { createMockGitHub } from "@liebstoeckel/buncus-mock-github";
 //   const mock = createMockGitHub();          // in-process, no port
 //   const res = await mock.fetch(new Request("http://gh/graphql", { ... }));
 //

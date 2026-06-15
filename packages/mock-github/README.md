@@ -1,4 +1,4 @@
-# @buncus/mock-github
+# @liebstoeckel/buncus-mock-github
 
 A dependency-free, stateful mock of the GitHub surfaces that buncus (and giscus)
 depend on, so the rest of buncus can be built and tested without any GitHub
@@ -20,7 +20,7 @@ grounded in GitHub's OpenAPI/docs and in what buncus actually consumes; see
 ## Use it in tests (in-process, no port)
 
 ```ts
-import { createMockGitHub, resetIds } from "@buncus/mock-github";
+import { createMockGitHub, resetIds } from "@liebstoeckel/buncus-mock-github";
 
 resetIds();                          // deterministic node IDs
 const mock = createMockGitHub();     // seeds repo acme/docs + dev user + bot

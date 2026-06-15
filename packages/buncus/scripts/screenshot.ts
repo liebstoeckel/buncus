@@ -3,7 +3,7 @@ import { generateKeyPairSync } from "node:crypto";
 // Capture real screenshots of the widget (consent gate, light, dark) for visual
 // verification. Same stack as the e2e: seeded mock + buncus + host page.
 import { mkdirSync } from "node:fs";
-import { createMockGitHub } from "@buncus/mock-github";
+import { createMockGitHub } from "@liebstoeckel/buncus-mock-github";
 import { chromium } from "playwright";
 import { renderDemoPage } from "../demo/page.ts";
 import { resetConfig, setConfig } from "../src/config.ts";

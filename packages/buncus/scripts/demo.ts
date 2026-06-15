@@ -2,7 +2,7 @@
 // Live demo: seeded mock GitHub + the buncus binary + a host page embedding the
 // loader. For manual / browser verification. Ctrl-C to stop.
 import { generateKeyPairSync } from "node:crypto";
-import { createMockGitHub } from "@buncus/mock-github";
+import { createMockGitHub } from "@liebstoeckel/buncus-mock-github";
 import { renderDemoPage } from "../demo/page.ts";
 
 const mock = createMockGitHub().listen(4655);

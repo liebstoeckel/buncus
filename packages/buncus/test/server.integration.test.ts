@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { generateKeyPairSync } from "node:crypto";
-import { createMockGitHub, type MockGitHubServer } from "@buncus/mock-github";
+import { createMockGitHub, type MockGitHubServer } from "@liebstoeckel/buncus-mock-github";
 import { resetConfig, setConfig } from "../src/config.ts";
 import { createServer } from "../src/server.ts";
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // Smoke-test the COMPILED binary against the mock GitHub, over real HTTP.
 import { generateKeyPairSync } from "node:crypto";
-import { createMockGitHub } from "@buncus/mock-github";
+import { createMockGitHub } from "@liebstoeckel/buncus-mock-github";
 
 const mock = createMockGitHub().listen(0);
 const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });

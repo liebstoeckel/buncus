@@ -106,7 +106,7 @@ Only GitHub **App installation tokens** are cached, in one SQLite table, preserv
 RS256 signed with `node:crypto`'s `createSign`. **Why:** dependency-free; Bun bundles `node:crypto`. **Alternative:** `jsonwebtoken` (giscus' choice) or `crypto.subtle` RSASSA-PKCS1 (needs PKCS#8; the env PEM is PKCS#1). **Status: D.**
 
 ### N9 — Configurable GitHub hosts
-`GITHUB_API_HOST` / `GITHUB_OAUTH_HOST` (default real GitHub). giscus hard-codes them. **Why:** point the whole stack at `@buncus/mock-github` to build/test **with no GitHub access**, and support GHES. **Status: N.** This is the seam the entire test strategy hangs on.
+`GITHUB_API_HOST` / `GITHUB_OAUTH_HOST` (default real GitHub). giscus hard-codes them. **Why:** point the whole stack at `@liebstoeckel/buncus-mock-github` to build/test **with no GitHub access**, and support GHES. **Status: N.** This is the seam the entire test strategy hangs on.
 
 ### P10 — GraphQL ops & comment rendering
 GraphQL query strings are ported **verbatim** from giscus (search/number reads, categories, create, comment, reply, reaction). Comment bodies are GitHub-rendered **`bodyHTML`** rendered via `dangerouslySetInnerHTML` (buncus bundles no Markdown parser); buncus trusts GitHub's sanitised HTML. **Status: P.** (Note: the mock ships a tiny Markdown→HTML renderer so offline `bodyHTML` is plausible.)
@@ -120,7 +120,7 @@ A theme is a CSS file setting `--bc-*` variables; `widget.css` is theme-agnostic
 ### D13 — CORS & origin gating
 **Assets** (`/buncus.js`, CSS, themes) send `Access-Control-Allow-Origin: *` because the embed `<script crossorigin>` loads them cross-origin (this was a real bug the e2e caught). The **API** is served same-origin to the iframe and the header transport keeps it CSRF-safe; on top of that, `/api/*` now **enforces the `ORIGINS` allowlist** on the `Origin` header (403 + reflected ACAO/`Vary` for disallowed browser origins — security-report M6). **Framing** is gated by CSP `frame-ancestors`, computed from the `ORIGINS` env (empty = **same-origin only**; `frame-ancestors` fails closed to `'none'` for absent/malformed/unmatched origins). **Why ORIGINS env, not giscus.json:** single-tenant self-host; no per-repo file fetch. **Status: D.**
 
-### N14 — `@buncus/mock-github` as a first-class subpackage
+### N14 — `@liebstoeckel/buncus-mock-github` as a first-class subpackage
 A stateful, dependency-free Bun mock of GitHub's OAuth/REST/GraphQL surfaces, grounded in GitHub's OpenAPI/docs + giscus' actual consumption (see its `SCHEMAS.md`). In-process `fetch(req)` for unit tests, `.listen(port)` for the binary/e2e. **Why:** the task must build/test with no GitHub access. **Status: N.**
 
 ### Security model (summary of the above)
@@ -151,7 +151,7 @@ An internal security review was conducted; **all findings are remediated** (regr
 
 ## 7. Testing strategy
 
-All tiers run against `@buncus/mock-github` — **no GitHub needed**. 82 tests / 12 files.
+All tiers run against `@liebstoeckel/buncus-mock-github` — **no GitHub needed**. 82 tests / 12 files.
 
 - **unit** — crypto (round-trip, TTL, tamper), `bun:sqlite` cache (intolerance, created_at), loader params/mapping/consent.
 - **integration** — proxied API + server routes vs the in-process mock (OAuth dance; create→comment→reply→react→read-back; anonymous app-token path; 404/403).

@@ -19,7 +19,7 @@ const repo = [...mock.store.repos.values()][0];
 const category = repo.categories[0];
 
 console.log(`
-┌─ @buncus/mock-github ───────────────────────────────────────────────
+┌─ @liebstoeckel/buncus-mock-github ───────────────────────────────────────────────
 │ listening:        ${mock.url}
 │
 │ Point buncus at this single origin for BOTH hosts:

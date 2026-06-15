@@ -1,4 +1,4 @@
-# @buncus/server (buncus)
+# @liebstoeckel/buncus-server (buncus)
 
 A single self-contained binary that hosts [GitHub Discussions](https://docs.github.com/discussions)
 comments on your site. It's a Bun-native, themeable, GDPR-by-default reimplementation
@@ -106,7 +106,7 @@ bun:sqlite          ← App installation-token cache
 ```sh
 bun run build:assets         # bundle loader + widget
 bun --hot src/server.ts      # dev server (after build:assets)
-bun test                     # unit + integration + e2e (uses @buncus/mock-github, no GitHub needed)
+bun test                     # unit + integration + e2e (uses @liebstoeckel/buncus-mock-github, no GitHub needed)
 bun run test:e2e             # just the Playwright browser e2e
 bunx tsc --noEmit            # typecheck (from repo root)
 bun run scripts/smoke.ts     # smoke-test the compiled binary against the mock
@@ -123,7 +123,7 @@ reject the cross-origin embed:
 DEMO_HOST=192.0.2.10 bun run demo      # then open http://192.0.2.10:4700/
 ```
 
-All tests run against [`@buncus/mock-github`](../mock-github), so no GitHub access is required.
+All tests run against [`@liebstoeckel/buncus-mock-github`](../mock-github), so no GitHub access is required.
 
 Test tiers:
 - unit: crypto (AES-GCM box, state TTL), `bun:sqlite` token cache, loader param/mapping/consent logic.

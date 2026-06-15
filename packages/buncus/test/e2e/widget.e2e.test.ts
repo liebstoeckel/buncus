@@ -2,7 +2,7 @@
 // Chromium through the full buncus stack:
 //   demo host page -> consent gate -> widget iframe -> read seeded discussion
 //   -> OAuth sign-in (auto-approved by the mock) -> post a comment.
-// No GitHub access: everything runs against @buncus/mock-github.
+// No GitHub access: everything runs against @liebstoeckel/buncus-mock-github.
 //
 // Skips cleanly if Chromium isn't installed (mirrors the repo's e2e convention).
 
@@ -11,7 +11,7 @@ import { generateKeyPairSync } from "node:crypto";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { createMockGitHub, type MockGitHubServer } from "@buncus/mock-github";
+import { createMockGitHub, type MockGitHubServer } from "@liebstoeckel/buncus-mock-github";
 import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
 import { renderDemoPage } from "../../demo/page.ts";
 import { resetConfig, setConfig } from "../../src/config.ts";

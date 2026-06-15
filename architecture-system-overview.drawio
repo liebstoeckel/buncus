@@ -16,7 +16,7 @@
     <mxCell id="zoneB" value="buncus binary (one origin, one process)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;fontStyle=1;fontSize=13;spacingTop=6;" vertex="1" parent="1">
       <mxGeometry x="460" y="80" width="420" height="470" as="geometry"/>
     </mxCell>
-    <mxCell id="zoneC" value="GitHub (or @buncus/mock-github)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffe6cc;strokeColor=#d79b00;verticalAlign=top;fontStyle=1;fontSize=13;spacingTop=6;" vertex="1" parent="1">
+    <mxCell id="zoneC" value="GitHub (or @liebstoeckel/buncus-mock-github)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffe6cc;strokeColor=#d79b00;verticalAlign=top;fontStyle=1;fontSize=13;spacingTop=6;" vertex="1" parent="1">
       <mxGeometry x="960" y="150" width="300" height="330" as="geometry"/>
     </mxCell>
 

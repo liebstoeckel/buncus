@@ -4,7 +4,7 @@
 //  - H1: required secrets must be set in production; the known dev password and
 //    short passwords are refused. Mock defaults are gated behind BUNCUS_MOCK=1.
 //  - Unlike giscus, both GitHub hosts are configurable (so the stack can run
-//    against @buncus/mock-github with no GitHub access).
+//    against @liebstoeckel/buncus-mock-github with no GitHub access).
 
 import { generateKeyPairSync } from "node:crypto";
 

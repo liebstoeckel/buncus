@@ -1,7 +1,7 @@
 // Multi-user / multi-page end-to-end browser test (Playwright + bun:test).
 // Two real users (alice, bob) in separate browser contexts interact across two
 // article pages (different data-term => different discussion threads), all
-// against @buncus/mock-github (no GitHub access):
+// against @liebstoeckel/buncus-mock-github (no GitHub access):
 //
 //   - alice signs in and starts a thread on Article A (lazily created)
 //   - bob (his own context, own session) sees it, reacts ❤️, and replies
@@ -17,7 +17,7 @@ import { generateKeyPairSync } from "node:crypto";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { createMockGitHub, type MockGitHubServer } from "@buncus/mock-github";
+import { createMockGitHub, type MockGitHubServer } from "@liebstoeckel/buncus-mock-github";
 import { type Browser, chromium, type FrameLocator, type Page } from "playwright";
 import { resetConfig, setConfig } from "../../src/config.ts";
 import { createServer } from "../../src/server.ts";

@@ -1,5 +1,5 @@
 {
-  "name": "@buncus/mock-github",
+  "name": "@liebstoeckel/buncus-mock-github",
   "version": "0.0.0",
   "private": true,
   "type": "module",

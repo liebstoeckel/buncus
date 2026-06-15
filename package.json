@@ -1,5 +1,5 @@
 {
-  "name": "buncus-workspace",
+  "name": "@liebstoeckel/buncus-workspace",
   "private": true,
   "type": "module",
   "workspaces": [
