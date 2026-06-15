@@ -14,12 +14,15 @@ permissions:
 
 jobs:
   release-please:
+    # Only run in the canonical repo; a no-op in forks (which also lack the secret).
+    if: github.repository == 'liebstoeckel/buncus'
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-          # Uses the default GITHUB_TOKEN. To have the release PR / release event
-          # trigger other workflows (e.g. CI on the PR), supply a PAT instead:
-          # token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          # PAT (or GitHub App token) so the release PR / release event trigger
+          # other workflows (e.g. CI on the PR); the default GITHUB_TOKEN does not.
+          # Create the secret with Contents: write + Pull requests: write.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
