@@ -1,5 +1,11 @@
-import { describe, test, expect } from "bun:test";
-import { buildIframeTarget, buildWidgetUrl, consentDecision, resolveMapping, type LoaderInputs } from "../loader/params.ts";
+import { describe, expect, test } from "bun:test";
+import {
+  buildIframeTarget,
+  buildWidgetUrl,
+  consentDecision,
+  type LoaderInputs,
+  resolveMapping,
+} from "../loader/params.ts";
 
 function inputs(over: Partial<LoaderInputs> = {}): LoaderInputs {
   return {

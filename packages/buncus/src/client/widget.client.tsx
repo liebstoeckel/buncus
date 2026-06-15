@@ -1,8 +1,8 @@
 // Client entry for the widget iframe. Hydrates the React app from the URL config.
 
 import { createRoot } from "react-dom/client";
-import { readConfig } from "./config.ts";
 import { App } from "./components/App.tsx";
+import { readConfig } from "./config.ts";
 
 const config = readConfig();
 const root = document.getElementById("buncus-root");

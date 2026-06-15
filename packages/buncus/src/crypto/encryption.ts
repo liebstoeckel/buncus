@@ -8,7 +8,7 @@
 // (password, salt). A session string is decoded on every request but always
 // carries the same salt, so after the first decode it's an O(1) cache hit.
 
-import { scryptSync, randomBytes } from "node:crypto";
+import { randomBytes, scryptSync } from "node:crypto";
 
 const subtle = globalThis.crypto.subtle;
 const SCRYPT = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };

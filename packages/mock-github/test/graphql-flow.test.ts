@@ -1,5 +1,5 @@
-import { describe, test, expect, beforeEach } from "bun:test";
-import { createMockGitHub, resetIds, type MockGitHub } from "../src/index.ts";
+import { beforeEach, describe, expect, test } from "bun:test";
+import { createMockGitHub, type MockGitHub, resetIds } from "../src/index.ts";
 
 const BASE = "http://gh";
 let mock: MockGitHub;
@@ -40,7 +40,7 @@ describe("GraphQL: categories", () => {
   test("returns seeded categories with parseable emoji", async () => {
     const data = await gql(CATEGORIES, { query: "repo:acme/docs fork:true" });
     const repo = data.data.search.nodes[0];
-    expect(repo.id).toBe(mock.store.getRepo("acme/docs")!.id);
+    expect(repo.id).toBe(mock.store.getRepo("acme/docs")?.id);
     const cats = repo.discussionCategories.nodes;
     expect(cats.map((c: any) => c.name)).toEqual(["General", "Announcements"]);
     // giscus parses the emoji out of emojiHTML with /">(.*?)<\/g-emoji/

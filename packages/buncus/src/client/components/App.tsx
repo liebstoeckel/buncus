@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { IDiscussion, IUser } from "../../github/adapters.ts";
 import type { ReactionContent } from "../../github/graphql.ts";
+import { type CustomError, createDiscussion, fetchDiscussion, postComment, postReply, react } from "../api.ts";
 import type { WidgetConfig } from "../config.ts";
-import { CustomError, createDiscussion, fetchDiscussion, postComment, postReply, react } from "../api.ts";
 import { emit } from "../messages.ts";
 import { Comment } from "./Comment.tsx";
 import { CommentBox } from "./CommentBox.tsx";
@@ -51,7 +51,8 @@ export function App({ config }: { config: WidgetConfig }) {
   // Resize the iframe to fit content. (Height is non-sensitive; "*" is fine when
   // the parent origin is unknown so the iframe can still be sized.)
   useEffect(() => {
-    const send = () => emit({ resizeHeight: Math.ceil(document.documentElement.getBoundingClientRect().height) }, parentOrigin);
+    const send = () =>
+      emit({ resizeHeight: Math.ceil(document.documentElement.getBoundingClientRect().height) }, parentOrigin);
     const ro = new ResizeObserver(send);
     ro.observe(document.documentElement);
     send();
@@ -79,7 +80,7 @@ export function App({ config }: { config: WidgetConfig }) {
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [parentOrigin]);
+  }, [parentOrigin, BUILTIN_THEMES.includes]);
 
   const signIn = useCallback(() => {
     const url = `/api/oauth/authorize?redirect_uri=${encodeURIComponent(config.origin)}`;
@@ -108,7 +109,8 @@ export function App({ config }: { config: WidgetConfig }) {
     [load, parentOrigin],
   );
 
-  const onComment = (body: string) => guard(async () => void (await postComment(config.session, await ensureId(), body)));
+  const onComment = (body: string) =>
+    guard(async () => void (await postComment(config.session, await ensureId(), body)));
   const onReply = (replyToId: string, body: string) =>
     guard(async () => void (await postReply(config.session, await ensureId(), replyToId, body)));
   const onReact = (subjectId: string, content: ReactionContent, viewerHasReacted: boolean) =>
@@ -131,7 +133,11 @@ export function App({ config }: { config: WidgetConfig }) {
   return (
     <div className="bc-root" data-input-position={config.inputPosition}>
       {config.reactionsEnabled && discussion && (
-        <Reactions reactions={discussion.reactions} disabled={!signedIn} onReact={(c, v) => onReact(discussion.id, c, v)} />
+        <Reactions
+          reactions={discussion.reactions}
+          disabled={!signedIn}
+          onReact={(c, v) => onReact(discussion.id, c, v)}
+        />
       )}
 
       <header className="bc-header">

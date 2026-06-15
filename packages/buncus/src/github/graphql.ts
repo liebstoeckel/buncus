@@ -3,10 +3,11 @@
 
 import { getConfig } from "../config.ts";
 
+export type { ReactionContent } from "../shared/reactions.ts";
 // Re-exported from the dependency-free shared module so client code can import
 // the constants without pulling in server config (see shared/reactions.ts).
 export { REACTIONS } from "../shared/reactions.ts";
-export type { ReactionContent } from "../shared/reactions.ts";
+
 import type { ReactionContent } from "../shared/reactions.ts";
 
 export interface PaginationParams {
@@ -90,7 +91,11 @@ export async function getDiscussion(params: DiscussionQuery & PaginationParams, 
   const searchIn = strict ? "in:body" : "in:title";
   const categoryQuery = category ? `category:${JSON.stringify(category)}` : "";
   const query = `repo:${repo} ${categoryQuery} ${searchIn} ${JSON.stringify(resolvedTerm)}`;
-  return gql(SEARCH_QUERY(number ? "number" : "term"), { repo, query, number, ...parseRepo(repo), ...pagination }, token);
+  return gql(
+    SEARCH_QUERY(number ? "number" : "term"),
+    { repo, query, number, ...parseRepo(repo), ...pagination },
+    token,
+  );
 }
 
 const CATEGORIES_QUERY = `
@@ -149,7 +154,12 @@ const ADD_REPLY = `
     }
   }`;
 
-export async function addDiscussionReply(body: string, discussionId: string, replyToId: string, token: string): Promise<any> {
+export async function addDiscussionReply(
+  body: string,
+  discussionId: string,
+  replyToId: string,
+  token: string,
+): Promise<any> {
   return gql(ADD_REPLY, { body, discussionId, replyToId }, token);
 }
 

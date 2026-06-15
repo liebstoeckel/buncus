@@ -1,5 +1,5 @@
-import { describe, test, expect, beforeEach } from "bun:test";
-import { createMockGitHub, resetIds, type MockGitHub } from "../src/index.ts";
+import { beforeEach, describe, expect, test } from "bun:test";
+import { createMockGitHub, type MockGitHub, resetIds } from "../src/index.ts";
 
 const BASE = "http://gh";
 let mock: MockGitHub;
@@ -65,7 +65,11 @@ describe("OAuth web flow", () => {
   });
 
   test("mock_user=<login> authenticates as that user (multi-user e2e)", async () => {
-    mock.store.addUser({ login: "alice", avatarUrl: "https://avatars.githubusercontent.com/u/11?v=4", url: "https://github.com/alice" });
+    mock.store.addUser({
+      login: "alice",
+      avatarUrl: "https://avatars.githubusercontent.com/u/11?v=4",
+      url: "https://github.com/alice",
+    });
 
     const auth = await req(
       `/login/oauth/authorize?client_id=${mock.store.clientId}&redirect_uri=http%3A%2F%2Fsite%2Fcb&state=s&mock_user=alice`,

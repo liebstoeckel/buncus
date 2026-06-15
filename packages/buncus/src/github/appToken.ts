@@ -1,9 +1,9 @@
 // Mint (and cache) GitHub App installation access tokens for anonymous reads
 // and app-authored discussion creation. Ported from giscus' getAppAccessToken.
 
+import type { TokenCache } from "../cache/tokenCache.ts";
 import { getConfig } from "../config.ts";
 import { signAppJwt } from "./jwt.ts";
-import type { TokenCache } from "../cache/tokenCache.ts";
 
 function appHeaders(): HeadersInit {
   const { appId, privateKey } = getConfig();

@@ -9,7 +9,7 @@
 
 import { Database } from "bun:sqlite";
 import { chmodSync } from "node:fs";
-import { encrypt, decrypt } from "../crypto/encryption.ts";
+import { decrypt, encrypt } from "../crypto/encryption.ts";
 
 const INTOLERANCE_MS = 5 * 60 * 1000;
 

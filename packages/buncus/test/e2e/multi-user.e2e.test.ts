@@ -12,14 +12,14 @@
 // affordance, injected into the authorize navigation with context.route.
 // Skips cleanly if Chromium isn't installed (mirrors the repo's e2e convention).
 
-import { describe, test, expect, beforeAll, afterAll } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { generateKeyPairSync } from "node:crypto";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { generateKeyPairSync } from "node:crypto";
-import { chromium, type Browser, type FrameLocator, type Page } from "playwright";
 import { createMockGitHub, type MockGitHubServer } from "@buncus/mock-github";
-import { setConfig, resetConfig } from "../../src/config.ts";
+import { type Browser, chromium, type FrameLocator, type Page } from "playwright";
+import { resetConfig, setConfig } from "../../src/config.ts";
 import { createServer } from "../../src/server.ts";
 
 const CHROMIUM_OK = existsSync(join(homedir(), ".cache", "ms-playwright"));
@@ -41,10 +41,23 @@ d("buncus multi-user / multi-page e2e (headless chromium)", () => {
     const repo = mock.store.getRepo("acme/docs")!;
     repoId = repo.id;
     categoryId = repo.categories[0].id;
-    mock.store.addUser({ login: "alice", avatarUrl: "https://avatars.githubusercontent.com/u/11?v=4", url: "https://github.com/alice" });
-    mock.store.addUser({ login: "bob", avatarUrl: "https://avatars.githubusercontent.com/u/12?v=4", url: "https://github.com/bob" });
+    mock.store.addUser({
+      login: "alice",
+      avatarUrl: "https://avatars.githubusercontent.com/u/11?v=4",
+      url: "https://github.com/alice",
+    });
+    mock.store.addUser({
+      login: "bob",
+      avatarUrl: "https://avatars.githubusercontent.com/u/12?v=4",
+      url: "https://github.com/bob",
+    });
     // Page B starts populated by dev; Page A starts empty (alice creates it).
-    const discB = mock.store.createDiscussion({ repositoryId: repo.id, categoryId, title: "article-b", body: "seed B\n\n<!-- sha1: b -->" });
+    const discB = mock.store.createDiscussion({
+      repositoryId: repo.id,
+      categoryId,
+      title: "article-b",
+      body: "seed B\n\n<!-- sha1: b -->",
+    });
     mock.store.addComment(discB.id, mock.store.viewerUserId, "Page B existing comment by **dev**.");
 
     const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
@@ -118,8 +131,13 @@ d("buncus multi-user / multi-page e2e (headless chromium)", () => {
    *  (which `userByLogin` also backs). Sign-ins are serialized, and the token
    *  binds to the user at code-exchange, so this is race-free across contexts. */
   async function signInAs(page: Page, login: string): Promise<FrameLocator> {
-    mock.store.viewerUserId = mock.store.userByLogin(login)!.id;
-    await page.frameLocator("iframe.buncus-frame").getByRole("button", { name: /sign in with github/i }).click();
+    const target = mock.store.userByLogin(login);
+    if (!target) throw new Error(`unknown seeded user: ${login}`);
+    mock.store.viewerUserId = target.id;
+    await page
+      .frameLocator("iframe.buncus-frame")
+      .getByRole("button", { name: /sign in with github/i })
+      .click();
     await page.waitForLoadState("networkidle");
     const frame = page.frameLocator("iframe.buncus-frame");
     await frame.getByRole("button", { name: /sign out/i }).waitFor({ timeout: 20_000 });
@@ -182,12 +200,12 @@ d("buncus multi-user / multi-page e2e (headless chromium)", () => {
       const discA = mock.store.searchDiscussions('repo:acme/docs in:title "article-a"')[0]!;
       const top = mock.store.topLevelComments(discA.id);
       expect(top).toHaveLength(1);
-      expect(top[0]!.body).toContain("Alice starts the thread");
-      expect(mock.store.users.get(top[0]!.authorId)?.login).toBe("alice");
-      expect(top[0]!.reactions.get("HEART")!.size).toBe(1);
-      const replies = mock.store.repliesOf(top[0]!.id);
+      expect(top[0]?.body).toContain("Alice starts the thread");
+      expect(mock.store.users.get(top[0]?.authorId)?.login).toBe("alice");
+      expect(top[0]?.reactions.get("HEART")?.size).toBe(1);
+      const replies = mock.store.repliesOf(top[0]?.id);
       expect(replies).toHaveLength(1);
-      expect(mock.store.users.get(replies[0]!.authorId)?.login).toBe("bob");
+      expect(mock.store.users.get(replies[0]?.authorId)?.login).toBe("bob");
     } finally {
       await aliceCtx.close();
       await bobCtx.close();

@@ -1,8 +1,8 @@
 // Regression tests for the security-report fixes.
-import { describe, test, expect, beforeAll, afterAll } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { generateKeyPairSync } from "node:crypto";
 import { createMockGitHub, type MockGitHubServer } from "@buncus/mock-github";
-import { setConfig, type Config } from "../src/config.ts";
+import { type Config, setConfig } from "../src/config.ts";
 import { createContext } from "../src/context.ts";
 import { handleApi } from "../src/routes/api.ts";
 import { createServer } from "../src/server.ts";
@@ -13,7 +13,9 @@ const PUBLIC = "http://buncus.test";
 
 beforeAll(() => {
   mock = createMockGitHub().listen(0);
-  privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey.export({ type: "pkcs1", format: "pem" }).toString();
+  privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 })
+    .privateKey.export({ type: "pkcs1", format: "pem" })
+    .toString();
 });
 afterAll(() => mock.stop());
 
@@ -41,20 +43,26 @@ const apiReq = (method: string, path: string, headers: Record<string, string> = 
 describe("C1 — OAuth redirect_uri allowlist", () => {
   test("rejects an off-allowlist redirect_uri (no open redirect)", async () => {
     configure();
-    const res = await apiReq("GET", `/api/oauth/authorize?redirect_uri=${encodeURIComponent("https://evil.example/catch")}`);
-    expect(res!.status).toBe(400);
+    const res = await apiReq(
+      "GET",
+      `/api/oauth/authorize?redirect_uri=${encodeURIComponent("https://evil.example/catch")}`,
+    );
+    expect(res?.status).toBe(400);
   });
 
   test("allows an allowlisted redirect_uri", async () => {
     configure();
     const res = await apiReq("GET", `/api/oauth/authorize?redirect_uri=${encodeURIComponent("http://site/page")}`);
-    expect(res!.status).toBe(302);
-    expect(res!.headers.get("location")!.startsWith(mock.url)).toBe(true);
+    expect(res?.status).toBe(302);
+    expect(res?.headers.get("location")?.startsWith(mock.url)).toBe(true);
   });
 
   test("the callback delivers the session in the fragment, not the query", async () => {
     configure();
-    const authorize = await apiReq("GET", `/api/oauth/authorize?redirect_uri=${encodeURIComponent("http://site/page")}`);
+    const authorize = await apiReq(
+      "GET",
+      `/api/oauth/authorize?redirect_uri=${encodeURIComponent("http://site/page")}`,
+    );
     const ghAuth = new URL(authorize!.headers.get("location")!);
     const back = new URL((await mock.fetch(new Request(ghAuth.href))).headers.get("location")!);
     const cb = await apiReq("GET", `/api/oauth/authorized${back.search}`);
@@ -67,12 +75,15 @@ describe("C1 — OAuth redirect_uri allowlist", () => {
 describe("M5 — repo validation", () => {
   test("rejects a malformed repo on reads", async () => {
     configure();
-    const res = await apiReq("GET", `/api/discussions?repo=${encodeURIComponent('evil" in:title x repo:other/secret')}&term=t`);
-    expect(res!.status).toBe(400);
+    const res = await apiReq(
+      "GET",
+      `/api/discussions?repo=${encodeURIComponent('evil" in:title x repo:other/secret')}&term=t`,
+    );
+    expect(res?.status).toBe(400);
   });
   test("rejects a malformed repo on categories", async () => {
     configure();
-    expect((await apiReq("GET", `/api/categories?repo=not-a-repo`))!.status).toBe(400);
+    expect((await apiReq("GET", `/api/categories?repo=not-a-repo`))?.status).toBe(400);
   });
 });
 
@@ -80,13 +91,17 @@ describe("M6 — API origin enforcement", () => {
   test("a disallowed cross-origin request is 403", async () => {
     configure();
     const app = createServer();
-    const res = await app.fetch(new Request(`${PUBLIC}/api/categories?repo=acme/docs`, { headers: { origin: "http://evil.example" } }));
+    const res = await app.fetch(
+      new Request(`${PUBLIC}/api/categories?repo=acme/docs`, { headers: { origin: "http://evil.example" } }),
+    );
     expect(res.status).toBe(403);
   });
   test("an allowlisted origin passes and is reflected", async () => {
     configure();
     const app = createServer();
-    const res = await app.fetch(new Request(`${PUBLIC}/api/categories?repo=acme/docs`, { headers: { origin: "http://site" } }));
+    const res = await app.fetch(
+      new Request(`${PUBLIC}/api/categories?repo=acme/docs`, { headers: { origin: "http://site" } }),
+    );
     expect(res.status).toBe(200);
     expect(res.headers.get("access-control-allow-origin")).toBe("http://site");
   });
@@ -122,7 +137,9 @@ describe("M4 — widget CSP + theme allowlist", () => {
   test("an un-allowlisted external theme URL falls back to a built-in", async () => {
     configure();
     const app = createServer();
-    const res = await app.fetch(new Request(`${PUBLIC}/widget?theme=${encodeURIComponent("https://evil.example/x.css")}`));
+    const res = await app.fetch(
+      new Request(`${PUBLIC}/widget?theme=${encodeURIComponent("https://evil.example/x.css")}`),
+    );
     const html = await res.text();
     expect(html).toContain("/themes/preferred_color_scheme.css");
     expect(html).not.toContain("evil.example");

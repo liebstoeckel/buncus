@@ -2,13 +2,13 @@
 // `with { type: "file" }` (Bun copies them into the standalone executable and
 // hands back a path that Bun.file reads at runtime — works compiled or not).
 
+import defaultCss from "../../assets/default.css" with { type: "file" };
+import darkCss from "../../assets/themes/dark.css" with { type: "file" };
+import lightCss from "../../assets/themes/light.css" with { type: "file" };
+import preferredCss from "../../assets/themes/preferred_color_scheme.css" with { type: "file" };
+import widgetCss from "../../assets/widget.css" with { type: "file" };
 import loaderJs from "../../dist/buncus.js" with { type: "file" };
 import widgetJs from "../../dist/widget.js" with { type: "file" };
-import widgetCss from "../../assets/widget.css" with { type: "file" };
-import defaultCss from "../../assets/default.css" with { type: "file" };
-import lightCss from "../../assets/themes/light.css" with { type: "file" };
-import darkCss from "../../assets/themes/dark.css" with { type: "file" };
-import preferredCss from "../../assets/themes/preferred_color_scheme.css" with { type: "file" };
 
 const CACHE = "public, max-age=0, stale-while-revalidate=604800";
 

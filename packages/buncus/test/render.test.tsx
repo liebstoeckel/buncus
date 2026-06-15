@@ -1,14 +1,18 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { App } from "../src/client/components/App.tsx";
 import { Comment } from "../src/client/components/Comment.tsx";
 import { Reactions } from "../src/client/components/Reactions.tsx";
-import { App } from "../src/client/components/App.tsx";
+import { readConfig } from "../src/client/config.ts";
 import type { IComment, IReactionGroups } from "../src/github/adapters.ts";
 import { REACTIONS } from "../src/github/graphql.ts";
-import { readConfig } from "../src/client/config.ts";
 
-function emptyReactions(over: Partial<Record<string, { count: number; viewerHasReacted: boolean }>> = {}): IReactionGroups {
-  return Object.fromEntries(REACTIONS.map((c) => [c, over[c] ?? { count: 0, viewerHasReacted: false }])) as IReactionGroups;
+function emptyReactions(
+  over: Partial<Record<string, { count: number; viewerHasReacted: boolean }>> = {},
+): IReactionGroups {
+  return Object.fromEntries(
+    REACTIONS.map((c) => [c, over[c] ?? { count: 0, viewerHasReacted: false }]),
+  ) as IReactionGroups;
 }
 
 const comment: IComment = {

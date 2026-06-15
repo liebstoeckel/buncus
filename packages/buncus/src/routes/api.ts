@@ -4,21 +4,21 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { getConfig, isAllowedRedirect } from "../config.ts";
-import { encodeState, decodeState } from "../crypto/state.ts";
-import { exchangeCodeForToken, checkToken } from "../github/oauth.ts";
+import { type Context, requireUserToken, resolveToken } from "../context.ts";
+import { decodeState, encodeState } from "../crypto/state.ts";
+import { adaptDiscussion } from "../github/adapters.ts";
 import { getAppAccessToken } from "../github/appToken.ts";
 import {
-  getDiscussion,
-  getDiscussionCategories,
-  createDiscussion,
   addDiscussionComment,
   addDiscussionReply,
-  toggleReaction,
+  createDiscussion,
   digestMessage,
+  getDiscussion,
+  getDiscussionCategories,
   type ReactionContent,
+  toggleReaction,
 } from "../github/graphql.ts";
-import { adaptDiscussion } from "../github/adapters.ts";
-import { resolveToken, requireUserToken, type Context } from "../context.ts";
+import { checkToken, exchangeCodeForToken } from "../github/oauth.ts";
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8" } });
@@ -74,14 +74,15 @@ async function readDiscussion(req: Request, url: URL, ctx: Context): Promise<Res
     const msg = String(response.errors[0]?.message ?? "");
     if (msg.includes("Bad credentials")) return json({ error: "Bad credentials" }, 403);
     if (msg.includes("API rate limit exceeded")) {
-      return json({ error: "API rate limit exceeded" + (isUser ? "" : ". Sign in to increase the rate limit") }, 429);
+      return json({ error: `API rate limit exceeded${isUser ? "" : ". Sign in to increase the rate limit"}` }, 429);
     }
     return json({ error: response.errors.map((e: any) => e.message).join(". ") }, 500);
   }
 
   const data = response.data;
   if (!data) return json({ error: "Unable to fetch discussion" }, 500);
-  const discussion = "search" in data ? (data.search.discussionCount > 0 ? data.search.nodes[0] : null) : data.repository?.discussion;
+  const discussion =
+    "search" in data ? (data.search.discussionCount > 0 ? data.search.nodes[0] : null) : data.repository?.discussion;
   if (!discussion) return json({ error: "Discussion not found" }, 404);
   return json(adaptDiscussion(data.viewer, discussion));
 }
@@ -90,7 +91,7 @@ async function readDiscussion(req: Request, url: URL, ctx: Context): Promise<Res
 async function postCreate(req: Request, ctx: Context): Promise<Response> {
   const body = await req.json();
   if (!validRepo(body?.repo ?? "")) return json({ error: "Invalid `repo`." }, 400);
-  const userToken = (await requireUserToken(req).catch(() => null));
+  const userToken = await requireUserToken(req).catch(() => null);
   if (!userToken || !(await checkToken(userToken))) return json({ error: "Invalid or missing access token." }, 403);
 
   const marker = `<!-- sha1: ${await digestMessage(body.title)} -->`;
@@ -207,7 +208,7 @@ export async function handleApi(req: Request, url: URL, ctx: Context): Promise<R
     if (cfg.webhookSecret) {
       const sig = req.headers.get("x-hub-signature-256") ?? "";
       const raw = await req.text();
-      const expected = "sha256=" + createHmac("sha256", cfg.webhookSecret).update(raw).digest("hex");
+      const expected = `sha256=${createHmac("sha256", cfg.webhookSecret).update(raw).digest("hex")}`;
       const a = Buffer.from(sig);
       const b = Buffer.from(expected);
       if (a.length !== b.length || !timingSafeEqual(a, b)) return json({ error: "Invalid signature." }, 401);

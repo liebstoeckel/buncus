@@ -2,7 +2,7 @@
 // + the React app bundle. All widget config travels in the URL query (set by
 // the loader), so the app reads it client-side — no per-request SSR needed.
 
-import { getConfig, isAllowedOrigin, type Config } from "../config.ts";
+import { type Config, getConfig, isAllowedOrigin } from "../config.ts";
 import { BUILTIN_THEMES } from "./assets.ts";
 
 /**

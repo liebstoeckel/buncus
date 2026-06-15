@@ -32,7 +32,7 @@ export function boot(script: HTMLScriptElement): void {
   }
 
   const meta = (name: string, og = false): string => {
-    const sel = (og ? `meta[property='og:${name}'],` : "") + `meta[name='${name}']`;
+    const sel = `${og ? `meta[property='og:${name}'],` : ""}meta[name='${name}']`;
     return document.querySelector<HTMLMetaElement>(sel)?.content ?? "";
   };
 
@@ -111,7 +111,7 @@ export function boot(script: HTMLScriptElement): void {
     label.className = "buncus-consent__remember";
     const remember = document.createElement("input");
     remember.type = "checkbox";
-    label.append(remember, " " + rememberLabel);
+    label.append(remember, ` ${rememberLabel}`);
     actions.append(button, label);
     gate.append(p, actions);
 

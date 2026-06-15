@@ -16,7 +16,11 @@ const disc = mock.store.createDiscussion({
   title: "guide/start",
   body: "Seed discussion\n\n<!-- sha1: seed -->",
 });
-const comment = mock.store.addComment(disc.id, mock.store.viewerUserId, "Hello from **buncus**! Try some `code` and a [link](https://example.com).");
+const comment = mock.store.addComment(
+  disc.id,
+  mock.store.viewerUserId,
+  "Hello from **buncus**! Try some `code` and a [link](https://example.com).",
+);
 mock.store.toggleReaction(comment.id, "HEART", mock.store.viewerUserId, true);
 
 const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });

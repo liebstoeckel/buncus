@@ -69,7 +69,12 @@ function adaptReactionGroups(groups: any[]): IReactionGroups {
 
 function adaptReply(reply: any): IReply {
   const { reactionGroups, replyTo, author, ...rest } = reply;
-  return { ...rest, author: author || GhostUser, reactions: adaptReactionGroups(reactionGroups), replyToId: replyTo?.id };
+  return {
+    ...rest,
+    author: author || GhostUser,
+    reactions: adaptReactionGroups(reactionGroups),
+    replyToId: replyTo?.id,
+  };
 }
 
 function adaptComment(comment: any): IComment {

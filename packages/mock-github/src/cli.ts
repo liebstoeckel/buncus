@@ -32,7 +32,7 @@ console.log(`
 │
 │ Seeded repo:      ${repo.nameWithOwner}   (repoId ${repo.id}, installation ${repo.installationId})
 │   category:       ${category.name}  (categoryId ${category.id})  ${category.emoji}
-│   sign-in as:     ${mock.store.users.get(mock.store.viewerUserId)!.login}
+│   sign-in as:     ${mock.store.users.get(mock.store.viewerUserId)?.login}
 │
 │ Try the OAuth flow:
 │   ${mock.url}/login/oauth/authorize?client_id=${clientId}&redirect_uri=http://localhost:3000/cb&state=xyz&mock_interactive=1

@@ -6,16 +6,16 @@
 //
 // Skips cleanly if Chromium isn't installed (mirrors the repo's e2e convention).
 
-import { describe, test, expect, beforeAll, afterAll } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { generateKeyPairSync } from "node:crypto";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { generateKeyPairSync } from "node:crypto";
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import { createMockGitHub, type MockGitHubServer } from "@buncus/mock-github";
-import { setConfig, resetConfig } from "../../src/config.ts";
-import { createServer } from "../../src/server.ts";
+import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
 import { renderDemoPage } from "../../demo/page.ts";
+import { resetConfig, setConfig } from "../../src/config.ts";
+import { createServer } from "../../src/server.ts";
 
 const CHROMIUM_OK = existsSync(join(homedir(), ".cache", "ms-playwright"));
 const d = CHROMIUM_OK ? describe : describe.skip;
@@ -35,7 +35,12 @@ d("buncus widget e2e (headless chromium)", () => {
     const repo = mock.store.getRepo("acme/docs")!;
     repoId = repo.id;
     categoryId = repo.categories[0].id;
-    const disc = mock.store.createDiscussion({ repositoryId: repo.id, categoryId, title: "guide/start", body: "seed\n\n<!-- sha1: seed -->" });
+    const disc = mock.store.createDiscussion({
+      repositoryId: repo.id,
+      categoryId,
+      title: "guide/start",
+      body: "seed\n\n<!-- sha1: seed -->",
+    });
     const c = mock.store.addComment(disc.id, mock.store.viewerUserId, "Hello from **buncus**! Try the demo.");
     mock.store.toggleReaction(c.id, "HEART", mock.store.viewerUserId, true);
 

@@ -245,12 +245,7 @@ export class Store {
 
   // ---- Discussions / comments ----------------------------------------------
 
-  createDiscussion(input: {
-    repositoryId: string;
-    categoryId: string;
-    title: string;
-    body: string;
-  }): Discussion {
+  createDiscussion(input: { repositoryId: string; categoryId: string; title: string; body: string }): Discussion {
     const repo = [...this.repos.values()].find((r) => r.id === input.repositoryId);
     if (!repo) throw new Error("Repository not found for repositoryId");
     this.discussionCounter += 1;

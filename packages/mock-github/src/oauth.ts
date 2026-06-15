@@ -12,8 +12,8 @@
 // ?mock_user=<login> to authenticate as a specific seeded user (defaults to the
 // store viewer) — the basis for multi-user e2e scenarios.
 
-import { Store } from "./store.ts";
 import type { Result } from "./rest.ts";
+import type { Store } from "./store.ts";
 
 export function authorize(store: Store, url: URL): Result {
   const clientId = url.searchParams.get("client_id") ?? "";
@@ -35,7 +35,10 @@ export function authorize(store: Store, url: URL): Result {
   if (mockUser) {
     const user = store.userByLogin(mockUser);
     if (!user) {
-      return { status: 400, json: { error: "unknown_mock_user", error_description: `No mock user with login "${mockUser}".` } };
+      return {
+        status: 400,
+        json: { error: "unknown_mock_user", error_description: `No mock user with login "${mockUser}".` },
+      };
     }
     userId = user.id;
   }
@@ -80,7 +83,8 @@ export async function accessToken(store: Store, params: URLSearchParams): Promis
       json: {
         error: "incorrect_client_credentials",
         error_description: "The client_id and/or client_secret passed are incorrect.",
-        error_uri: "https://docs.github.com/apps/managing-oauth-apps/troubleshooting-oauth-app-access-token-request-errors/",
+        error_uri:
+          "https://docs.github.com/apps/managing-oauth-apps/troubleshooting-oauth-app-access-token-request-errors/",
       },
     };
   }
@@ -92,7 +96,8 @@ export async function accessToken(store: Store, params: URLSearchParams): Promis
       json: {
         error: "bad_verification_code",
         error_description: "The code passed is incorrect or expired.",
-        error_uri: "https://docs.github.com/apps/managing-oauth-apps/troubleshooting-oauth-app-access-token-request-errors/",
+        error_uri:
+          "https://docs.github.com/apps/managing-oauth-apps/troubleshooting-oauth-app-access-token-request-errors/",
       },
     };
   }

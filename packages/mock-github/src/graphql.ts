@@ -4,7 +4,14 @@
 // + variables and project store records into the exact selection-set shapes
 // giscus' adapters consume (giscus-eval/lib/adapter.ts).
 
-import { Store, REACTION_CONTENTS, type Comment, type Discussion, type ReactionContent, type User } from "./store.ts";
+import {
+  type Comment,
+  type Discussion,
+  REACTION_CONTENTS,
+  type ReactionContent,
+  type Store,
+  type User,
+} from "./store.ts";
 
 interface GqlBody {
   query: string;
@@ -87,7 +94,10 @@ function decodeCursor(c: string): number {
 function paginate<T>(
   all: T[],
   args: { first?: number; last?: number; after?: string; before?: string },
-): { nodes: T[]; pageInfo: { startCursor: string | null; endCursor: string | null; hasNextPage: boolean; hasPreviousPage: boolean } } {
+): {
+  nodes: T[];
+  pageInfo: { startCursor: string | null; endCursor: string | null; hasNextPage: boolean; hasPreviousPage: boolean };
+} {
   let start = 0;
   let end = all.length;
   if (args.after) start = decodeCursor(args.after) + 1;
@@ -160,14 +170,20 @@ export function handleGraphQL(store: Store, body: GqlBody, token?: string | null
   if (q.includes("addDiscussionComment(input:")) {
     if (!viewer) return unauthorized();
     const comment = store.addComment(v.discussionId, viewer.id, v.body, null);
-    return { status: 200, json: { data: { addDiscussionComment: { comment: projectComment(store, comment, viewerId) } } } };
+    return {
+      status: 200,
+      json: { data: { addDiscussionComment: { comment: projectComment(store, comment, viewerId) } } },
+    };
   }
 
   if (q.includes("Reaction(input:")) {
     if (!viewer) return unauthorized();
     const add = q.includes("addReaction(");
     store.toggleReaction(v.subjectId, v.content, viewer.id, add);
-    return { status: 200, json: { data: { toggleReaction: { reaction: { content: v.content, id: `RE_${v.subjectId}_${v.content}` } } } } };
+    return {
+      status: 200,
+      json: { data: { toggleReaction: { reaction: { content: v.content, id: `RE_${v.subjectId}_${v.content}` } } } },
+    };
   }
 
   if (q.includes("Upvote(input:")) {

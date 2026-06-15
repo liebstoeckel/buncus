@@ -51,20 +51,32 @@ try {
 
   const widget = await fetch(`${PUBLIC}/widget?theme=dark&repo=acme/docs&origin=http://site/p`);
   const widgetHtml = await widget.text();
-  check("GET /widget (theme + CSP)", widget.ok && widgetHtml.includes("/themes/dark.css") && !!widget.headers.get("content-security-policy"));
+  check(
+    "GET /widget (theme + CSP)",
+    widget.ok && widgetHtml.includes("/themes/dark.css") && !!widget.headers.get("content-security-policy"),
+  );
 
   check("GET /default.css", (await fetch(`${PUBLIC}/default.css`)).ok);
   check("GET /themes/preferred_color_scheme.css", (await fetch(`${PUBLIC}/themes/preferred_color_scheme.css`)).ok);
 
   const cats = await fetch(`${PUBLIC}/api/categories?repo=acme/docs`);
   const catsData = await cats.json();
-  check("GET /api/categories", cats.ok && catsData.categories?.[0]?.name === "General", JSON.stringify(catsData.categories?.[0]));
+  check(
+    "GET /api/categories",
+    cats.ok && catsData.categories?.[0]?.name === "General",
+    JSON.stringify(catsData.categories?.[0]),
+  );
 
   const notFound = await fetch(`${PUBLIC}/api/discussions?repo=acme/docs&term=fresh/page`);
   check("GET /api/discussions (404 for new term)", notFound.status === 404);
 
-  const authorize = await fetch(`${PUBLIC}/api/oauth/authorize?redirect_uri=${encodeURIComponent("http://site/p")}`, { redirect: "manual" });
-  check("GET /api/oauth/authorize (302 -> GitHub)", authorize.status === 302 && authorize.headers.get("location")!.startsWith(mock.url));
+  const authorize = await fetch(`${PUBLIC}/api/oauth/authorize?redirect_uri=${encodeURIComponent("http://site/p")}`, {
+    redirect: "manual",
+  });
+  check(
+    "GET /api/oauth/authorize (302 -> GitHub)",
+    authorize.status === 302 && (authorize.headers.get("location")?.startsWith(mock.url) ?? false),
+  );
 } finally {
   proc.kill();
   mock.stop();

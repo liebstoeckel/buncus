@@ -1,6 +1,6 @@
 // Headless-DOM test of the loader: consent gate -> iframe injection, with no
 // real browser. Uses happy-dom registered as the global environment.
-import { describe, test, expect, beforeEach, afterAll } from "bun:test";
+import { afterAll, beforeEach, describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 
 GlobalRegistrator.register({

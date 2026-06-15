@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeAll, afterAll } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { generateKeyPairSync } from "node:crypto";
 import { createMockGitHub, type MockGitHubServer } from "@buncus/mock-github";
-import { setConfig, resetConfig } from "../src/config.ts";
+import { resetConfig, setConfig } from "../src/config.ts";
 import { createServer } from "../src/server.ts";
 
 let mock: MockGitHubServer;
@@ -41,7 +41,13 @@ describe("static assets + widget shell", () => {
   });
 
   test("/default.css and themes serve CSS", async () => {
-    for (const p of ["/default.css", "/widget.css", "/themes/light.css", "/themes/dark.css", "/themes/preferred_color_scheme.css"]) {
+    for (const p of [
+      "/default.css",
+      "/widget.css",
+      "/themes/light.css",
+      "/themes/dark.css",
+      "/themes/preferred_color_scheme.css",
+    ]) {
       const res = await get(p);
       expect(res.status).toBe(200);
       expect(res.headers.get("content-type")).toContain("text/css");
@@ -88,6 +94,6 @@ describe("API routed through the server", () => {
   test("OAuth authorize redirects to the (mock) GitHub host", async () => {
     const res = await get(`/api/oauth/authorize?redirect_uri=${encodeURIComponent("http://site/p")}`);
     expect(res.status).toBe(302);
-    expect(res.headers.get("location")!.startsWith(mock.url)).toBe(true);
+    expect(res.headers.get("location")?.startsWith(mock.url)).toBe(true);
   });
 });

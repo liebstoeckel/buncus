@@ -50,7 +50,7 @@ function parseEnv(): Config {
 
   const required = (name: string): string => {
     const v = process.env[name];
-    if (v && v.length) return v;
+    if (v?.length) return v;
     if (mock && MOCK_DEFAULTS[name]) return MOCK_DEFAULTS[name];
     throw new Error(`Config error: ${name} is required. Set it, or run with BUNCUS_MOCK=1 for local/testing.`);
   };
@@ -58,7 +58,9 @@ function parseEnv(): Config {
   const encryptionPassword = required("ENCRYPTION_PASSWORD");
   if (!mock) {
     if (encryptionPassword === DEV_PASSWORD) {
-      throw new Error("Config error: ENCRYPTION_PASSWORD is set to the known insecure dev default. Generate a unique value (e.g. `openssl rand -hex 32`).");
+      throw new Error(
+        "Config error: ENCRYPTION_PASSWORD is set to the known insecure dev default. Generate a unique value (e.g. `openssl rand -hex 32`).",
+      );
     }
     if (encryptionPassword.length < 16) {
       throw new Error("Config error: ENCRYPTION_PASSWORD must be at least 16 characters.");
@@ -70,7 +72,9 @@ function parseEnv(): Config {
     if (mock) {
       // Ephemeral key so the app-token path works in local/mock runs (the mock
       // doesn't verify the signature anyway).
-      privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey.export({ type: "pkcs1", format: "pem" }).toString();
+      privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 })
+        .privateKey.export({ type: "pkcs1", format: "pem" })
+        .toString();
     } else {
       throw new Error("Config error: GITHUB_PRIVATE_KEY is required.");
     }

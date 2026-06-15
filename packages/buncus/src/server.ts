@@ -7,7 +7,7 @@
 // Serves: the embed loader (/buncus.js), the iframe widget (/{lang?}/widget),
 // the parent + widget CSS and themes, and the proxied JSON API (/api/*).
 
-import { getConfig, isAllowedOrigin, type Config } from "./config.ts";
+import { getConfig, isAllowedOrigin } from "./config.ts";
 import { createContext } from "./context.ts";
 import { handleApi } from "./routes/api.ts";
 import { serveAsset } from "./routes/assets.ts";
@@ -31,7 +31,7 @@ const RL_MAX = 120; // requests per IP per window on /api/*
 
 function clientIp(req: Request, server: any): string {
   const xff = req.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0]!.trim();
+  if (xff) return xff.split(",")[0]?.trim();
   try {
     return server?.requestIP?.(req)?.address ?? "unknown";
   } catch {
@@ -73,11 +73,21 @@ export function createServer() {
       // matches Origin). The header-based session already makes writes CSRF-safe;
       // this closes the cross-origin read/abuse gap.
       if (origin && !isAllowedOrigin(origin, cfg)) {
-        return withSecurity(new Response(JSON.stringify({ error: "Origin not allowed." }), { status: 403, headers: { "content-type": "application/json" } }));
+        return withSecurity(
+          new Response(JSON.stringify({ error: "Origin not allowed." }), {
+            status: 403,
+            headers: { "content-type": "application/json" },
+          }),
+        );
       }
       // M5: per-IP rate limit (skipped in mock/dev).
       if (!cfg.mock && !rateOk(clientIp(req, server))) {
-        return withSecurity(new Response(JSON.stringify({ error: "Too many requests." }), { status: 429, headers: { "content-type": "application/json", "retry-after": "60" } }));
+        return withSecurity(
+          new Response(JSON.stringify({ error: "Too many requests." }), {
+            status: 429,
+            headers: { "content-type": "application/json", "retry-after": "60" },
+          }),
+        );
       }
       const api = await handleApi(req, url, ctx);
       if (api) {

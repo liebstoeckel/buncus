@@ -4,17 +4,17 @@
 // The path namespaces don't collide, so buncus can point both
 // GITHUB_API_HOST and GITHUB_OAUTH_HOST at this single origin.
 
-import { Store } from "./store.ts";
 import { handleGraphQL } from "./graphql.ts";
-import { authorize, accessToken } from "./oauth.ts";
+import { accessToken, authorize } from "./oauth.ts";
 import {
-  type Result,
-  getRepoInstallation,
-  createInstallationToken,
   checkToken,
+  createInstallationToken,
   getContents,
+  getRepoInstallation,
   postMarkdown,
+  type Result,
 } from "./rest.ts";
+import type { Store } from "./store.ts";
 
 function corsHeaders(origin: string | null): Record<string, string> {
   // api.github.com is CORS-enabled; mirror it so browser-side writes work in dev.

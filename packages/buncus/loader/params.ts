@@ -22,7 +22,10 @@ export interface IframeTarget {
 }
 
 /** Resolve the discussion term/number from the mapping mode (giscus-compatible). */
-export function resolveMapping(dataset: Record<string, string | undefined>, inputs: LoaderInputs): { term?: string; number?: string } {
+export function resolveMapping(
+  dataset: Record<string, string | undefined>,
+  inputs: LoaderInputs,
+): { term?: string; number?: string } {
   switch (dataset.mapping) {
     case "url":
       return { term: inputs.location };
@@ -34,7 +37,6 @@ export function resolveMapping(dataset: Record<string, string | undefined>, inpu
       return { term: dataset.term ?? "" };
     case "number":
       return { number: dataset.term ?? "" };
-    case "pathname":
     default:
       return {
         term: inputs.pathname.length < 2 ? "index" : inputs.pathname.substring(1).replace(/\.\w+$/, ""),

@@ -3,8 +3,8 @@
 // only fields buncus reads are guaranteed-meaningful, the rest are realistic
 // filler so the objects look like the real thing.
 
-import { Store } from "./store.ts";
 import { renderMarkdown } from "./markdown.ts";
+import type { Store } from "./store.ts";
 
 export type Result = {
   status: number;
@@ -76,7 +76,10 @@ export function checkToken(store: Store, clientId: string, accessToken: string):
   const user = store.userForToken(accessToken);
   if (clientId !== store.clientId || !user || user.isApp) {
     // GitHub returns 422 for an unknown token under a valid app.
-    return { status: 422, json: { message: "Unprocessable Entity", documentation_url: "https://docs.github.com/rest" } };
+    return {
+      status: 422,
+      json: { message: "Unprocessable Entity", documentation_url: "https://docs.github.com/rest" },
+    };
   }
   return {
     status: 200,
@@ -121,7 +124,7 @@ export function getContents(store: Store, owner: string, repo: string, path: str
         git_url: `https://api.github.com/repos/${owner}/${repo}/git/blobs/${"0".repeat(40)}`,
         download_url: `https://raw.githubusercontent.com/${owner}/${repo}/main/giscus.json`,
         type: "file",
-        content: content.match(/.{1,60}/g)?.join("\n") + "\n",
+        content: `${content.match(/.{1,60}/g)?.join("\n")}\n`,
         encoding: "base64",
         _links: {
           self: `https://api.github.com/repos/${owner}/${repo}/contents/giscus.json`,

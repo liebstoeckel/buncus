@@ -33,7 +33,7 @@ body {
 }
 
 .bc-root {
-  font: 14px/1.55 var(--bc-font);
+  font: 14px / 1.55 var(--bc-font);
   color: var(--bc-fg);
   padding: 4px;
 }

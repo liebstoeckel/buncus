@@ -19,7 +19,10 @@ function headers(session: string, body = false): HeadersInit {
 }
 
 export class CustomError extends Error {
-  constructor(message: string, public status: number) {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
     super(message);
   }
 }
@@ -57,7 +60,11 @@ export async function createDiscussion(cfg: WidgetConfig): Promise<{ id: string 
 
 export async function postComment(session: string, discussionId: string, body: string) {
   return jsonOrThrow(
-    await fetch("/api/comment", { method: "POST", headers: headers(session, true), body: JSON.stringify({ discussionId, body }) }),
+    await fetch("/api/comment", {
+      method: "POST",
+      headers: headers(session, true),
+      body: JSON.stringify({ discussionId, body }),
+    }),
   );
 }
 

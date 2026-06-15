@@ -12,6 +12,7 @@ export function Reactions({
   onReact: (content: ReactionContent, viewerHasReacted: boolean) => void;
 }) {
   return (
+    // biome-ignore lint/a11y/useSemanticElements: role="group" + aria-label is the correct pattern for a button group; <fieldset>/<legend> is form-specific and wrong here.
     <div className="bc-reactions" role="group" aria-label="Reactions">
       {REACTIONS.map((content) => {
         const r = reactions[content];
@@ -20,7 +21,7 @@ export function Reactions({
           <button
             key={content}
             type="button"
-            className={"bc-reaction" + (active ? " bc-reaction--active" : "")}
+            className={`bc-reaction${active ? " bc-reaction--active" : ""}`}
             disabled={disabled}
             aria-pressed={active}
             title={content.toLowerCase()}

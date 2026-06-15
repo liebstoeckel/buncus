@@ -1,10 +1,11 @@
 import { useState } from "react";
 import type { IComment, IReply } from "../../github/adapters.ts";
 import type { ReactionContent } from "../../github/graphql.ts";
-import { Reactions } from "./Reactions.tsx";
 import { CommentBox } from "./CommentBox.tsx";
+import { Reactions } from "./Reactions.tsx";
 
 function Body({ html }: { html: string }) {
+  // biome-ignore lint/security/noDangerouslySetInnerHtml: GitHub returns pre-sanitised bodyHTML; trusted by design (see ARCHITECTURE.md "Security hardening").
   return <div className="bc-markdown" dir="auto" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 

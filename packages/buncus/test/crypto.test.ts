@@ -1,6 +1,6 @@
-import { describe, test, expect } from "bun:test";
-import { encrypt, decrypt } from "../src/crypto/encryption.ts";
-import { encodeState, decodeState } from "../src/crypto/state.ts";
+import { describe, expect, test } from "bun:test";
+import { decrypt, encrypt } from "../src/crypto/encryption.ts";
+import { decodeState, encodeState } from "../src/crypto/state.ts";
 
 const PW = "a-sufficiently-long-test-password-aaaaaaaa";
 
@@ -43,6 +43,6 @@ describe("state box (value + expiry)", () => {
 
   test("tampered state is rejected", async () => {
     const s = await encodeState("v", PW);
-    await expect(decodeState(s.slice(0, -4) + "0000", PW)).rejects.toThrow("Invalid state value.");
+    await expect(decodeState(`${s.slice(0, -4)}0000`, PW)).rejects.toThrow("Invalid state value.");
   });
 });

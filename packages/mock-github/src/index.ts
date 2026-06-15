@@ -10,19 +10,19 @@
 // `mock.store` is the live in-memory state — seed extra repos/users/discussions
 // before driving a flow, or assert against it after.
 
-import { Store, type StoreOptions, resetIds } from "./store.ts";
 import { handleRequest } from "./handler.ts";
+import { resetIds, Store, type StoreOptions } from "./store.ts";
 
-export { Store, resetIds };
-export type { StoreOptions };
 export type {
-  User,
-  Repo,
   Category,
-  Discussion,
   Comment,
+  Discussion,
   ReactionContent,
+  Repo,
+  User,
 } from "./store.ts";
+export type { StoreOptions };
+export { resetIds, Store };
 
 export interface MockGitHub {
   /** Live in-memory state. Seed before, assert after. */
