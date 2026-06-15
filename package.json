@@ -1,6 +1,20 @@
 {
   "name": "@liebstoeckel/buncus-workspace",
   "private": true,
+  "description": "buncus monorepo: a single-binary, self-hosted host for GitHub Discussions comments (a Bun-native giscus reimplementation).",
+  "homepage": "https://github.com/liebstoeckel/buncus#readme",
+  "bugs": {
+    "url": "https://github.com/liebstoeckel/buncus/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liebstoeckel/buncus.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Leon Kaucher",
+    "email": "contact@liebstoeckel.app"
+  },
   "type": "module",
   "workspaces": [
     "packages/*"

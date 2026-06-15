@@ -10,6 +10,11 @@ no CDN: one executable, a SQLite file, and env vars.
 > changes can land in any release without a major-version bump, so pin an exact
 > version if you depend on it.
 
+> **GDPR.** buncus aims to make it easier to host a GDPR-compliant comment system,
+> but does not guarantee that the implementation is compliant as-is. GitHub still
+> acts as a third party when comments load. You are responsible for providing a
+> privacy document and ensuring your own deployment is compliant.
+
 - Single binary: `bun build --compile`, which embeds the loader, widget, CSS, and themes.
 - Themeable: CSS-variable themes (`light` / `dark` / `preferred_color_scheme`) plus any custom CSS URL, with a small default theme included.
 - GDPR-by-default: nothing touches GitHub until the visitor opts in (a consent toggle gates the iframe before it's inlined).

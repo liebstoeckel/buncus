@@ -11,6 +11,11 @@ database, no CDN.
 > changes can land in any release without a major-version bump, so pin an exact
 > version if you depend on it.
 
+> **GDPR.** buncus aims to make it easier to host a GDPR-compliant comment system,
+> but does not guarantee that the implementation is compliant as-is. GitHub still
+> acts as a third party when comments load. You are responsible for providing a
+> privacy document and ensuring your own deployment is compliant.
+
 ## Documentation map
 
 | Doc | What it covers |

@@ -2,9 +2,34 @@
   "name": "@liebstoeckel/buncus-mock-github",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "description": "Dependency-free, stateful mock of the GitHub endpoints buncus/giscus depend on (OAuth web flow, REST app/installation/contents/markdown, GraphQL Discussions). For local development and tests without GitHub access.",
+  "keywords": [
+    "github",
+    "mock",
+    "test-fixture",
+    "testing",
+    "oauth",
+    "graphql",
+    "rest",
+    "github-discussions",
+    "bun",
+    "giscus"
+  ],
+  "homepage": "https://github.com/liebstoeckel/buncus/tree/main/packages/mock-github#readme",
+  "bugs": {
+    "url": "https://github.com/liebstoeckel/buncus/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liebstoeckel/buncus.git",
+    "directory": "packages/mock-github"
+  },
   "license": "MIT",
+  "author": {
+    "name": "Leon Kaucher",
+    "email": "contact@liebstoeckel.app"
+  },
+  "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },

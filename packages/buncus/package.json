@@ -2,9 +2,32 @@
   "name": "@liebstoeckel/buncus-server",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
-  "description": "buncus — a single-binary, themeable host for GitHub Discussions comments (a Bun-native giscus clone).",
+  "description": "A single-binary, themeable, self-hosted host for GitHub Discussions comments. A Bun-native giscus reimplementation.",
+  "keywords": [
+    "github-discussions",
+    "comments",
+    "comment-system",
+    "comment-widget",
+    "giscus",
+    "bun",
+    "self-hosted",
+    "github-app"
+  ],
+  "homepage": "https://github.com/liebstoeckel/buncus/tree/main/packages/buncus#readme",
+  "bugs": {
+    "url": "https://github.com/liebstoeckel/buncus/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liebstoeckel/buncus.git",
+    "directory": "packages/buncus"
+  },
   "license": "MIT",
+  "author": {
+    "name": "Leon Kaucher",
+    "email": "contact@liebstoeckel.app"
+  },
+  "type": "module",
   "bin": {
     "buncus": "./src/server.ts"
   },
