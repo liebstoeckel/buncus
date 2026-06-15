@@ -103,6 +103,16 @@ jobs:
       - name: Build assets
         run: cd packages/buncus && bun run build:assets
 
+      # Attribution for everything embedded in the binary: the bundled JS
+      # dependency closure plus the Bun runtime's own bundled-dependency notice
+      # (fetched for the exact Bun version). Written into dist/release so it ships
+      # alongside the binaries and is covered by SHA256SUMS.txt below.
+      - name: Generate third-party license report
+        working-directory: packages/buncus
+        run: |
+          mkdir -p dist/release
+          bun run scripts/third-party-licenses.ts dist/release/THIRD_PARTY_LICENSES.txt
+
       - name: Compile binaries
         working-directory: packages/buncus
         run: |
