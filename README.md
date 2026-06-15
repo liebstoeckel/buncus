@@ -42,4 +42,14 @@ test, demo) runs with **no GitHub access**.
 ## Status
 
 Functioning, tested (unit · integration · render · loader-DOM · Playwright e2e ·
-binary smoke), single binary verified end-to-end against the mock. License: MIT.
+binary smoke), single binary verified end-to-end against the mock.
+
+## License & attribution
+
+buncus is [MIT licensed](./LICENSE).
+
+It is a reimplementation of [**giscus**](https://github.com/giscus/giscus) by
+Sage M. Abdullah and contributors, and incorporates code derived from it —
+notably the GitHub GraphQL queries and parts of the client/proxy architecture
+and `data-*` embed model. giscus is MIT licensed; its notice is reproduced in
+[`LICENSE`](./LICENSE).

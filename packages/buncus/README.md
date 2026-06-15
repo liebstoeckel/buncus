@@ -133,3 +133,13 @@ All tests run against [`@buncus/mock-github`](../mock-github) — **no GitHub ac
 - **e2e** — Playwright + real headless Chromium: demo page → consent gate → widget iframe → seeded discussion → OAuth sign-in → post a comment → theme check (`test/e2e/widget.e2e.test.ts`).
 
 > e2e note: the test uses `chromium.launch({ channel: "chromium" })` (the **full** Chromium build). In some sandboxes the lighter `chrome-headless-shell` segfaults while the full build runs fine. The suite skips cleanly if no Playwright browser is installed. Install once with `bunx playwright install chromium`.
+
+## License & attribution
+
+buncus is [MIT licensed](../../LICENSE).
+
+It is a reimplementation of [**giscus**](https://github.com/giscus/giscus) by
+Sage M. Abdullah and contributors, and incorporates code derived from it —
+notably the GitHub GraphQL queries and parts of the client/proxy architecture
+and `data-*` embed model. giscus is MIT licensed; its notice is reproduced in
+[`LICENSE`](../../LICENSE).

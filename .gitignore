@@ -4,3 +4,6 @@ node_modules/
 dist/
 .DS_Store
 .idea/
+
+# Reference clone of giscus/giscus — kept locally for comparison, not part of buncus.
+giscus-eval/
