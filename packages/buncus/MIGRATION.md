@@ -26,6 +26,9 @@ talks to the **same GitHub Discussions**.
   `data-term`, `data-strict`, `data-reactions-enabled`, `data-emit-metadata`,
   `data-input-position`, `data-lang`, `data-loading`, `data-theme`.
 - **Mapping semantics**: identical (pathname strips ext, `number` selects by id, …).
+- **Comment pagination**: same front/back dual-pagination as giscus — newest
+  page pinned, oldest-first stream, an oldest/newest order toggle, and a "load
+  more" button that fills the hidden middle (15 per page).
 - **`<meta name="description">`** and a backlink meta are still read (buncus also
   accepts `<meta name="buncus:backlink">`, falling back to giscus').
 

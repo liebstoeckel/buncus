@@ -2,7 +2,7 @@
 // is attached as a header; the GitHub token never lives in browser JS.
 
 import type { IGiscussion } from "../github/adapters.ts";
-import type { ReactionContent } from "../github/graphql.ts";
+import type { PaginationParams, ReactionContent } from "../github/graphql.ts";
 import type { WidgetConfig } from "./config.ts";
 
 export interface Category {
@@ -33,8 +33,15 @@ async function jsonOrThrow(res: Response) {
   return data;
 }
 
-export async function fetchDiscussion(cfg: WidgetConfig, first = 50): Promise<IGiscussion> {
-  const q = new URLSearchParams({ repo: cfg.repo, first: String(first) });
+export async function fetchDiscussion(
+  cfg: WidgetConfig,
+  pagination: PaginationParams = { first: 50 },
+): Promise<IGiscussion> {
+  const q = new URLSearchParams({ repo: cfg.repo });
+  if (pagination.first != null) q.set("first", String(pagination.first));
+  if (pagination.last != null) q.set("last", String(pagination.last));
+  if (pagination.after) q.set("after", pagination.after);
+  if (pagination.before) q.set("before", pagination.before);
   if (cfg.number) q.set("number", String(cfg.number));
   else q.set("term", cfg.term);
   if (cfg.category) q.set("category", cfg.category);

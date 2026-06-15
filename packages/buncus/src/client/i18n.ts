@@ -34,6 +34,8 @@ export interface Translator extends WidgetStrings {
   locale: string;
   /** Localized "{count} comment(s)" using giscus's one/other plural forms. */
   comments(count: number): string;
+  /** Localized "{count} hidden item(s)" for the front/back pagination button. */
+  hiddenItems(count: number): string;
 }
 
 /** Build a translator for a locale. Spreads the raw strings so components can
@@ -44,6 +46,8 @@ export function makeT(lang: string | undefined): Translator {
     ...s,
     locale: lang || "",
     comments: (count: number) => (count === 1 ? s.commentsOne : s.commentsOther).replace("{count}", String(count)),
+    hiddenItems: (count: number) =>
+      (count === 1 ? s.hiddenItemsOne : s.hiddenItemsOther).replace("{count}", String(count)),
   };
 }
 

@@ -61,6 +61,11 @@ body {
 .bc-header__count {
   font-weight: 600;
 }
+.bc-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .bc-header__link,
 .bc-comment__author {
   color: var(--bc-accent);
@@ -69,6 +74,66 @@ body {
 }
 .bc-header__link:hover {
   text-decoration: underline;
+}
+
+/* Comment-order toggle (oldest / newest). */
+.bc-order {
+  display: inline-flex;
+  border: 1px solid var(--bc-border);
+  border-radius: var(--bc-radius);
+  overflow: hidden;
+}
+.bc-order__btn {
+  cursor: pointer;
+  border: 0;
+  border-left: 1px solid var(--bc-border);
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 12px;
+  background: var(--bc-btn-bg);
+  color: var(--bc-fg);
+}
+.bc-order__btn:first-child {
+  border-left: 0;
+}
+.bc-order__btn:hover {
+  background: var(--bc-btn-hover);
+}
+.bc-order__btn--active {
+  font-weight: 600;
+  color: var(--bc-accent);
+}
+
+/* Front/back "load more" pagination button. */
+.bc-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  cursor: pointer;
+  border: 1px solid var(--bc-border);
+  border-radius: 8px;
+  background: var(--bc-btn-bg);
+  color: var(--bc-fg);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font: inherit;
+  text-align: left;
+}
+.bc-pagination:hover:not(:disabled) {
+  background: var(--bc-btn-hover);
+}
+.bc-pagination:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+.bc-pagination__count {
+  color: var(--bc-muted);
+}
+.bc-pagination__more {
+  color: var(--bc-accent);
+  font-weight: 600;
 }
 
 .bc-comment {

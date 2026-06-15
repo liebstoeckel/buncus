@@ -177,6 +177,38 @@ d("buncus widget e2e (headless chromium)", () => {
     }
   }, 60_000);
 
+  test("front/back pagination: 'load more' reveals the hidden middle", async () => {
+    // Seed the thread past two pages (PAGE_SIZE 15 + 15) so a gap appears.
+    // Done here, last, so the earlier exact-count assertions stay valid.
+    const disc = [...mock.store.discussions.values()].find((x) => x.title === "guide/start")!;
+    const existing = mock.store.topLevelComments(disc.id).length;
+    for (let i = existing; i < 40; i++) {
+      mock.store.addComment(disc.id, mock.store.viewerUserId, `seeded comment ${i}`);
+    }
+
+    const { ctx, page } = await fresh();
+    try {
+      await page.goto(hostOrigin);
+      await page.locator(".buncus-consent__load").click();
+      const frame = page.frameLocator("iframe.buncus-frame");
+      await frame.locator(".bc-root").waitFor({ state: "visible" });
+      await frame.getByText("40 comments", { exact: false }).waitFor();
+
+      // Front 15 + back 15 are shown; the middle 10 are hidden behind the button.
+      const loadMore = frame.locator(".bc-pagination");
+      await loadMore.waitFor({ state: "visible" });
+      expect(await loadMore.textContent()).toContain("10 hidden items");
+      expect(await frame.locator(".bc-comment").count()).toBe(30);
+
+      // Expanding one more front page closes the gap: all 40 render, button gone.
+      await loadMore.click();
+      await frame.locator(".bc-pagination").waitFor({ state: "detached" });
+      expect(await frame.locator(".bc-comment").count()).toBe(40);
+    } finally {
+      await ctx.close();
+    }
+  }, 60_000);
+
   test("the dark theme is applied in the iframe", async () => {
     const { ctx, page } = await fresh();
     try {

@@ -108,6 +108,7 @@ bun:sqlite          ← App installation-token cache
 ```
 
 - Reads (thread, categories): anonymous requests use the App installation token; signed-in requests use the user token.
+- Pagination: comments load giscus-style front/back — the newest page is pinned and an oldest-first stream grows from a "load more" button (15 per page), with an oldest/newest order toggle. Each "load more" is one extra GraphQL read on the same token bucket, so on a single-repo self-host (App token ≈ 5,000 points/hr shared across anonymous readers) very high-traffic threads can hit the 429 that prompts visitors to sign in.
 - Writes (comment, reply, reaction): require a signed-in session and run server-side.
 - OAuth: `/api/oauth/authorize` → GitHub → `/api/oauth/authorized`, then the encrypted session is returned to the page in the URL fragment (`#buncus=`, validated against the `ORIGINS` allowlist), never the query string.
 
@@ -139,8 +140,9 @@ Test tiers:
 - unit: crypto (AES-GCM box, state TTL), `bun:sqlite` token cache, loader param/mapping/consent logic.
 - integration: the proxied API and the server routes driven against the in-process mock (the OAuth dance, then create → comment → reply → react → read-back).
 - render: widget React components via `react-dom/server`.
+- pagination: the pure front/back merge (overlap dedup, hidden-gap count, newest-order swap) plus end-to-end cursor paging through the proxy (`test/pagination.test.ts`).
 - loader DOM: the consent gate and iframe injection under happy-dom.
-- e2e: Playwright with real headless Chromium, going from demo page → consent gate → widget iframe → seeded discussion → OAuth sign-in → post a comment → theme check (`test/e2e/widget.e2e.test.ts`).
+- e2e: Playwright with real headless Chromium, going from demo page → consent gate → widget iframe → seeded discussion → OAuth sign-in → post a comment → "load more" pagination → theme check (`test/e2e/widget.e2e.test.ts`).
 
 > e2e note: the test uses `chromium.launch({ channel: "chromium" })`, the full Chromium build. In some sandboxes the lighter `chrome-headless-shell` segfaults while the full build runs fine. The suite skips cleanly if no Playwright browser is installed. Install once with `bunx playwright install chromium`.
 

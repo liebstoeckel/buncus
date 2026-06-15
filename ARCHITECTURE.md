@@ -167,7 +167,7 @@ All tiers run against `@liebstoeckel/buncus-mock-github` — **no GitHub needed*
 Honest scope boundaries (the goal allowed scoping the clone):
 
 - **Upvotes**: the GraphQL op exists in giscus' surface but the UI doesn't expose upvoting (GitHub disallows app-issued user tokens upvoting).
-- **No "load more" pagination in the UI**: the widget fetches the first N (default 50) comments; the front/back dual-pagination giscus does isn't implemented (the read API and cursors support it).
+- **No server-side read cache**: giscus can optionally cache discussion reads (valkey/postgrest/supabase); buncus reads through to GitHub every time. On a single-repo self-host the GitHub App token's ~5,000 points/hr is shared across all anonymous readers, so this — not page size — is the real rate-limit lever for high-traffic sites.
 - **No math rendering** (giscus' MathJax `<math-renderer>`) and **no client-side DOMPurify** pass on `bodyHTML` — a hardening TODO; currently relies on GitHub's server-side sanitisation.
 - **Themes**: 3 built-ins + custom URL (not giscus' 24).
 - **GitHub-side rate-limit (429) simulation** isn't in the mock (the relay code path + mapping exist). buncus' *own* per-IP rate limiting is implemented and tested.

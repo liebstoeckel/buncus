@@ -122,6 +122,12 @@ function strings(l: string) {
     signInWithGitHub: pick("signInWithGitHub"),
     signOut: pick("signOut"),
     reactionsLabel: pick("addReactions"),
+    loadMore: pick("loadMore"),
+    loading: pick("loading"),
+    oldest: pick("oldest"),
+    newest: pick("newest"),
+    hiddenItemsOne: ph(g.hiddenItems?.one ?? en.hiddenItems.one),
+    hiddenItemsOther: ph(g.hiddenItems?.other ?? en.hiddenItems.other),
     reaction,
   };
 }
@@ -155,6 +161,17 @@ export interface WidgetStrings {
   signOut: string;
   /** aria-label for the reaction button group. */
   reactionsLabel: string;
+  /** "Load more" pagination button label. */
+  loadMore: string;
+  /** Transient label while a "load more" request is in flight. */
+  loading: string;
+  /** Comment-order toggle labels. */
+  oldest: string;
+  newest: string;
+  /** "{count} hidden item" (singular) — the paginated gap between front/back. */
+  hiddenItemsOne: string;
+  /** "{count} hidden items" (plural). */
+  hiddenItemsOther: string;
   /** Per-reaction display names, keyed by GitHub reaction content enum. */
   reaction: Record<string, string>;
 }

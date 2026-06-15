@@ -1,21 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { IDiscussion, IUser } from "../../github/adapters.ts";
 import type { ReactionContent } from "../../github/graphql.ts";
-import { type CustomError, createDiscussion, fetchDiscussion, postComment, postReply, react } from "../api.ts";
+import { type CustomError, createDiscussion, postComment, postReply, react } from "../api.ts";
 import type { WidgetConfig } from "../config.ts";
 import { documentLang, makeT } from "../i18n.ts";
 import { emit } from "../messages.ts";
+import { type CommentOrder, useFrontBackDiscussion } from "../useFrontBackDiscussion.ts";
 import { Comment } from "./Comment.tsx";
 import { CommentBox } from "./CommentBox.tsx";
 import { Reactions } from "./Reactions.tsx";
 
-type Status = "loading" | "ready" | "notfound" | "error";
-
 export function App({ config }: { config: WidgetConfig }) {
-  const [discussion, setDiscussion] = useState<IDiscussion | null>(null);
-  const [viewer, setViewer] = useState<IUser | null>(null);
-  const [status, setStatus] = useState<Status>("loading");
-  const [error, setError] = useState("");
+  const [orderBy, setOrderBy] = useState<CommentOrder>("oldest");
+  const [actionError, setActionError] = useState("");
+  const d = useFrontBackDiscussion(config, orderBy);
+  const { discussion, viewer, status } = d;
   const signedIn = !!config.session;
   // UI strings for the iframe's locale (set on <html lang> by the server).
   const t = useMemo(() => makeT(documentLang()), []);
@@ -29,27 +27,12 @@ export function App({ config }: { config: WidgetConfig }) {
   }, [config.origin]);
   const BUILTIN_THEMES = ["light", "dark", "preferred_color_scheme"];
 
-  const load = useCallback(async () => {
-    try {
-      const data = await fetchDiscussion(config);
-      setDiscussion(data.discussion);
-      setViewer(data.viewer);
-      setStatus("ready");
-    } catch (e) {
-      const err = e as CustomError;
-      if (err.status === 404) {
-        setStatus("notfound");
-      } else {
-        setError(err.message);
-        setStatus("error");
-        emit({ error: err.message }, parentOrigin);
-      }
-    }
-  }, [config, parentOrigin]);
-
+  // Forward fatal load errors to the parent page (as the old single-fetch path
+  // did): the loader clears a stale session on "Bad credentials" and warns on
+  // rate-limit, so it must hear about read failures over postMessage.
   useEffect(() => {
-    load();
-  }, [load]);
+    if (status === "error" && d.error) emit({ error: d.error }, parentOrigin);
+  }, [status, d.error, parentOrigin]);
 
   // Resize the iframe to fit content. (Height is non-sensitive; "*" is fine when
   // the parent origin is unknown so the iframe can still be sized.)
@@ -63,10 +46,17 @@ export function App({ config }: { config: WidgetConfig }) {
   });
 
   // Optional metadata broadcast — only to a KNOWN origin (never "*"), since it
-  // includes the viewer's login (security-report L).
+  // includes the viewer's login (security-report L). Mirrors giscus' shape:
+  // discussion metadata + counts, never the comment bodies.
   useEffect(() => {
-    if (config.emitMetadata && discussion && parentOrigin !== "*") emit({ discussion, viewer }, parentOrigin);
-  }, [config.emitMetadata, parentOrigin, discussion, viewer]);
+    if (!config.emitMetadata || !discussion || parentOrigin === "*") return;
+    const metadata = {
+      ...discussion,
+      totalCommentCount: d.totalCommentCount,
+      totalReplyCount: d.totalReplyCount,
+    };
+    emit({ discussion: metadata, viewer }, parentOrigin);
+  }, [config.emitMetadata, parentOrigin, discussion, viewer, d.totalCommentCount, d.totalReplyCount]);
 
   // Parent-driven theme swap (M3): require a matching, known parent origin and
   // restrict the value to built-in names or same-origin paths (no external CSS).
@@ -101,15 +91,16 @@ export function App({ config }: { config: WidgetConfig }) {
   const guard = useCallback(
     async (fn: () => Promise<void>) => {
       try {
+        setActionError("");
         await fn();
-        await load();
+        await d.reload();
       } catch (e) {
         const err = e as CustomError;
-        setError(err.message);
+        setActionError(err.message);
         emit({ error: err.message }, parentOrigin);
       }
     },
-    [load, parentOrigin],
+    [d.reload, parentOrigin],
   );
 
   const onComment = (body: string) =>
@@ -120,9 +111,9 @@ export function App({ config }: { config: WidgetConfig }) {
     guard(async () => void (await react(config.session, subjectId, content, viewerHasReacted)));
 
   if (status === "loading") return <div className="bc-status">{t.loadingComments}</div>;
-  if (status === "error") return <div className="bc-status bc-status--error">{error}</div>;
+  if (status === "error") return <div className="bc-status bc-status--error">{d.error}</div>;
 
-  const count = discussion?.totalCommentCount ?? 0;
+  const count = d.totalCommentCount;
   const box = (
     <CommentBox
       t={t}
@@ -132,6 +123,17 @@ export function App({ config }: { config: WidgetConfig }) {
       onSignOut={signedIn ? signOut : undefined}
       onSubmit={onComment}
     />
+  );
+
+  const renderComment = (c: (typeof d.frontComments)[number]) => (
+    <Comment key={c.id} t={t} comment={c} signedIn={signedIn} onReact={onReact} onReply={onReply} onSignIn={signIn} />
+  );
+
+  const pagination = d.numHidden > 0 && (
+    <button type="button" className="bc-pagination" onClick={d.loadMore} disabled={d.isLoadingMore}>
+      <span className="bc-pagination__count">{t.hiddenItems(d.numHidden)}</span>
+      <span className="bc-pagination__more">{`${d.isLoadingMore ? t.loading : t.loadMore}…`}</span>
+    </button>
   );
 
   return (
@@ -147,33 +149,47 @@ export function App({ config }: { config: WidgetConfig }) {
 
       <header className="bc-header">
         <span className="bc-header__count">{t.comments(count)}</span>
-        {discussion && (
-          <a className="bc-header__link" href={discussion.url} target="_top" rel="noopener noreferrer">
-            {t.viewOnGitHub}
-          </a>
-        )}
+        <div className="bc-header__actions">
+          {count > 0 && (
+            <div className="bc-order">
+              <button
+                type="button"
+                className={`bc-order__btn${orderBy === "oldest" ? " bc-order__btn--active" : ""}`}
+                aria-pressed={orderBy === "oldest"}
+                onClick={() => setOrderBy("oldest")}
+              >
+                {t.oldest}
+              </button>
+              <button
+                type="button"
+                className={`bc-order__btn${orderBy === "newest" ? " bc-order__btn--active" : ""}`}
+                aria-pressed={orderBy === "newest"}
+                onClick={() => setOrderBy("newest")}
+              >
+                {t.newest}
+              </button>
+            </div>
+          )}
+          {discussion && (
+            <a className="bc-header__link" href={discussion.url} target="_top" rel="noopener noreferrer">
+              {t.viewOnGitHub}
+            </a>
+          )}
+        </div>
       </header>
 
       {config.inputPosition === "top" && box}
 
       <div className="bc-comments">
-        {discussion?.comments.map((c) => (
-          <Comment
-            key={c.id}
-            t={t}
-            comment={c}
-            signedIn={signedIn}
-            onReact={onReact}
-            onReply={onReply}
-            onSignIn={signIn}
-          />
-        ))}
+        {d.frontComments.map(renderComment)}
+        {pagination}
+        {d.backComments.map(renderComment)}
         {count === 0 && <p className="bc-empty">{t.noComments}</p>}
       </div>
 
       {config.inputPosition === "bottom" && box}
 
-      {error && <div className="bc-status bc-status--error">{error}</div>}
+      {(actionError || d.error) && <div className="bc-status bc-status--error">{actionError || d.error}</div>}
     </div>
   );
 }

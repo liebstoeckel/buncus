@@ -38,6 +38,12 @@ describe("widget i18n", () => {
     expect(makeT("de").comments(1)).toContain("1"); // localized, count interpolated
   });
 
+  test("pluralizes hidden-item counts (front/back pagination button)", () => {
+    const en = makeT("en");
+    expect(en.hiddenItems(1)).toBe("1 hidden item");
+    expect(en.hiddenItems(70)).toBe("70 hidden items");
+  });
+
   test("flags RTL locales (and their base) only", () => {
     expect(isRtl("ar")).toBe(true);
     expect(isRtl("fa")).toBe(true);
