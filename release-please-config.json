@@ -6,7 +6,8 @@
   "include-component-in-tag": false,
   "packages": {
     "packages/buncus": {
-      "package-name": "@liebstoeckel/buncus-server"
+      "package-name": "@liebstoeckel/buncus-server",
+      "initial-version": "0.1.0"
     }
   }
 }
