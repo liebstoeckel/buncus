@@ -168,7 +168,7 @@ d("buncus multi-user / multi-page e2e (headless chromium)", () => {
       await bFrame.getByRole("button", { name: /sign in with github/i }).waitFor(); // his context has no session
       bFrame = await signInAs(bobPage, "bob");
 
-      const heartSel = "article.bc-comment > .bc-reactions button[title='heart']";
+      const heartSel = "article.bc-comment > .bc-reactions button[data-reaction='HEART']";
       await bFrame.locator(heartSel).click();
       await bFrame.locator(`${heartSel}.bc-reaction--active`).waitFor({ timeout: 20_000 });
       expect(await bFrame.locator(heartSel).locator(".bc-reaction__count").textContent()).toBe("1");
@@ -184,7 +184,7 @@ d("buncus multi-user / multi-page e2e (headless chromium)", () => {
       await alicePage.reload();
       aFrame = page0Frame(alicePage);
       await aFrame.getByText("Bob replies").waitFor({ timeout: 20_000 });
-      const aliceHeart = aFrame.locator("article.bc-comment > .bc-reactions button[title='heart']");
+      const aliceHeart = aFrame.locator("article.bc-comment > .bc-reactions button[data-reaction='HEART']");
       await aliceHeart.locator(".bc-reaction__count").waitFor();
       expect(await aliceHeart.locator(".bc-reaction__count").textContent()).toBe("1");
       expect(await aliceHeart.getAttribute("aria-pressed")).toBe("false"); // she didn't react

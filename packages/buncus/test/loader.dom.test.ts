@@ -82,6 +82,41 @@ describe("loader in a DOM", () => {
     expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("Kommentare laden");
   });
 
+  test("localizes the gate for any giscus locale (e.g. ja, fr, zh-TW)", () => {
+    boot(addScript({ ...base, lang: "ja" }));
+    expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("コメントを読み込む");
+    boot(addScript({ ...base, lang: "fr" }));
+    expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("Charger les commentaires");
+    boot(addScript({ ...base, lang: "zh-TW" }));
+    expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("載入留言");
+  });
+
+  test("applies giscus locale fallbacks (gsw -> de, zh-Hant -> zh-TW)", () => {
+    boot(addScript({ ...base, lang: "gsw" }));
+    expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("Kommentare laden");
+    boot(addScript({ ...base, lang: "zh-Hant" }));
+    expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("載入留言");
+  });
+
+  test("falls back to the base language, then English", () => {
+    boot(addScript({ ...base, lang: "pt-BR" })); // base pt
+    expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("Carregar comentários");
+    boot(addScript({ ...base, lang: "xx" })); // unknown -> English
+    expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("Load comments");
+  });
+
+  test("data-consent-lang overrides data-lang for the gate copy", () => {
+    boot(addScript({ ...base, lang: "en", consentLang: "de" }));
+    expect(document.querySelector(".buncus-consent__load")?.textContent).toContain("Kommentare laden");
+  });
+
+  test("sets dir=rtl on the gate for RTL locales (ar)", () => {
+    boot(addScript({ ...base, lang: "ar" }));
+    expect((document.querySelector(".buncus-consent") as HTMLElement)?.dir).toBe("rtl");
+    boot(addScript({ ...base, lang: "en" }));
+    expect((document.querySelector(".buncus-consent") as HTMLElement)?.dir).toBe("");
+  });
+
   test("injects the parent default.css link", () => {
     boot(addScript({ ...base, consent: "skip" }));
     const link = document.getElementById("buncus-css") as HTMLLinkElement;

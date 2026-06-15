@@ -4,8 +4,12 @@ import { App } from "../src/client/components/App.tsx";
 import { Comment } from "../src/client/components/Comment.tsx";
 import { Reactions } from "../src/client/components/Reactions.tsx";
 import { readConfig } from "../src/client/config.ts";
+import { makeT } from "../src/client/i18n.ts";
 import type { IComment, IReactionGroups } from "../src/github/adapters.ts";
 import { REACTIONS } from "../src/github/graphql.ts";
+
+const en = makeT("en");
+const de = makeT("de");
 
 function emptyReactions(
   over: Partial<Record<string, { count: number; viewerHasReacted: boolean }>> = {},
@@ -51,7 +55,7 @@ const comment: IComment = {
 
 describe("widget renders (no browser)", () => {
   test("Reactions renders all 8 reactions and the active state", () => {
-    const html = renderToStaticMarkup(<Reactions reactions={comment.reactions} onReact={() => {}} />);
+    const html = renderToStaticMarkup(<Reactions t={en} reactions={comment.reactions} onReact={() => {}} />);
     expect(html).toContain("❤️");
     expect(html).toContain("👍");
     expect(html).toContain("bc-reaction--active"); // HEART is active
@@ -60,12 +64,34 @@ describe("widget renders (no browser)", () => {
 
   test("Comment renders author, body, and a reply", () => {
     const html = renderToStaticMarkup(
-      <Comment comment={comment} signedIn={true} onReact={() => {}} onReply={async () => {}} onSignIn={() => {}} />,
+      <Comment
+        t={en}
+        comment={comment}
+        signedIn={true}
+        onReact={() => {}}
+        onReply={async () => {}}
+        onSignIn={() => {}}
+      />,
     );
     expect(html).toContain("octocat");
     expect(html).toContain("<strong>world</strong>");
     expect(html).toContain("A reply");
     expect(html).toContain("hubot");
+  });
+
+  test("Comment localizes the reply button + reaction tooltips (de)", () => {
+    const html = renderToStaticMarkup(
+      <Comment
+        t={de}
+        comment={comment}
+        signedIn={true}
+        onReact={() => {}}
+        onReply={async () => {}}
+        onSignIn={() => {}}
+      />,
+    );
+    expect(html).toContain(de.reply); // localized "Reply"
+    expect(html).toContain(`title="${de.reaction.HEART}"`); // localized reaction name
   });
 
   test("App initial render shows the loading state", () => {

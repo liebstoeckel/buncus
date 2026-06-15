@@ -60,8 +60,9 @@ export function createServer() {
     const url = new URL(req.url);
     const path = url.pathname;
 
-    // /{lang}/widget -> strip the locale segment (language is presentational here).
-    if (/^\/(?:[a-zA-Z-]+\/)?widget$/.test(path)) return withSecurity(renderWidget(url));
+    // /{lang}/widget -> the locale segment selects the widget's UI language.
+    const widgetMatch = path.match(/^\/(?:([a-zA-Z-]+)\/)?widget$/);
+    if (widgetMatch) return withSecurity(renderWidget(url, widgetMatch[1]));
 
     if (path === "/" || path === "/healthz") {
       return withSecurity(new Response("buncus ok\n", { headers: { "content-type": "text/plain" } }));

@@ -1,6 +1,7 @@
 // The loader's bootable logic, factored out of the IIFE entry so it can be
 // driven in a headless DOM test. `buncus.ts` calls boot(document.currentScript).
 
+import { isRtlLocale, resolveConsentCopy } from "./consent-i18n.ts";
 import { buildIframeTarget, buildWidgetUrl, consentDecision, type LoaderInputs } from "./params.ts";
 
 const SESSION_KEY = "buncus-session";
@@ -72,20 +73,18 @@ export function boot(script: HTMLScriptElement): void {
   }
 
   function renderGate() {
-    const de = (d.lang || d.consentLang || "").startsWith("de");
-    const text =
-      d.consentText ||
-      (de
-        ? "Kommentare werden von GitHub geladen. Dabei wird deine IP an GitHub Inc. (USA) übertragen."
-        : "Comments are loaded from GitHub. This transmits your IP address to GitHub Inc. (USA).");
-    const loadLabel = de ? "Kommentare laden" : "Load comments";
-    const rememberLabel = de ? "Auswahl merken" : "Remember my choice";
+    const lang = d.consentLang || d.lang;
+    const copy = resolveConsentCopy(lang);
+    const text = d.consentText || copy.text;
+    const loadLabel = copy.load;
+    const rememberLabel = copy.remember;
 
     // Built with DOM APIs (no innerHTML) so data-* values from the page can't
     // inject markup; the privacy URL is scheme-validated (http(s) or relative).
     const gate = document.createElement("div");
     gate.className = "buncus-consent";
     gate.setAttribute("role", "group");
+    if (isRtlLocale(lang)) gate.dir = "rtl";
 
     const p = document.createElement("p");
     p.className = "buncus-consent__text";
@@ -97,7 +96,7 @@ export function boot(script: HTMLScriptElement): void {
       a.target = "_top";
       a.rel = "noopener";
       a.style.color = "inherit";
-      a.textContent = de ? "Datenschutz" : "Privacy";
+      a.textContent = copy.privacy;
       p.append(a);
     }
 

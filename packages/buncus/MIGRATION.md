@@ -42,7 +42,7 @@ talks to the **same GitHub Discussions**.
 | Consent | none | **GDPR gate on by default** (`data-consent`) | EU/DSGVO embedding |
 | Themes | 24 built-ins | small set: `light`, `dark`, `preferred_color_scheme` + any custom URL | "small default theme"; custom CSS covers the rest |
 | Theme vars | `--color-*` (Primer) | `--bc-*` | smaller, documented surface |
-| i18n | ~35 locales | en + de (consent copy); widget strings English | scope; PRs welcome |
+| i18n | ~35 locales | all 35 giscus locales (consent gate + widget UI), via `data-lang` | full parity; strings sourced from giscus's own bundles |
 
 None of these change *where comments live* — only how the widget is hosted and wired.
 

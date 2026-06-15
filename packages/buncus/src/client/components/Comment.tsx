@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { IComment, IReply } from "../../github/adapters.ts";
 import type { ReactionContent } from "../../github/graphql.ts";
+import type { Translator } from "../i18n.ts";
 import { CommentBox } from "./CommentBox.tsx";
 import { Reactions } from "./Reactions.tsx";
 
@@ -15,8 +16,8 @@ function httpsOnly(url: string | undefined): string | undefined {
   return url && /^https?:\/\//.test(url) ? url : undefined;
 }
 
-function Meta({ comment }: { comment: IComment | IReply }) {
-  const when = comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : "";
+function Meta({ comment, locale }: { comment: IComment | IReply; locale: string }) {
+  const when = comment.createdAt ? new Date(comment.createdAt).toLocaleDateString(locale || undefined) : "";
   return (
     <div className="bc-comment__meta">
       <img className="bc-avatar" src={httpsOnly(comment.author.avatarUrl)} alt="" width={32} height={32} />
@@ -29,12 +30,14 @@ function Meta({ comment }: { comment: IComment | IReply }) {
 }
 
 export function Comment({
+  t,
   comment,
   signedIn,
   onReact,
   onReply,
   onSignIn,
 }: {
+  t: Translator;
   comment: IComment;
   signedIn: boolean;
   onReact: (subjectId: string, content: ReactionContent, viewerHasReacted: boolean) => void;
@@ -45,21 +48,31 @@ export function Comment({
 
   return (
     <article className="bc-comment">
-      <Meta comment={comment} />
+      <Meta comment={comment} locale={t.locale} />
       {comment.deletedAt || comment.isMinimized ? (
-        <p className="bc-comment__hidden">This comment was {comment.deletedAt ? "deleted" : "hidden"}.</p>
+        <p className="bc-comment__hidden">{comment.deletedAt ? t.thisCommentWasDeleted : t.thisCommentWasMinimized}</p>
       ) : (
         <Body html={comment.bodyHTML} />
       )}
-      <Reactions reactions={comment.reactions} disabled={!signedIn} onReact={(c, v) => onReact(comment.id, c, v)} />
+      <Reactions
+        t={t}
+        reactions={comment.reactions}
+        disabled={!signedIn}
+        onReact={(c, v) => onReact(comment.id, c, v)}
+      />
 
       {comment.replies.length > 0 && (
         <div className="bc-replies">
           {comment.replies.map((reply) => (
             <div className="bc-reply" key={reply.id}>
-              <Meta comment={reply} />
+              <Meta comment={reply} locale={t.locale} />
               <Body html={reply.bodyHTML} />
-              <Reactions reactions={reply.reactions} disabled={!signedIn} onReact={(c, v) => onReact(reply.id, c, v)} />
+              <Reactions
+                t={t}
+                reactions={reply.reactions}
+                disabled={!signedIn}
+                onReact={(c, v) => onReact(reply.id, c, v)}
+              />
             </div>
           ))}
         </div>
@@ -67,14 +80,15 @@ export function Comment({
 
       <div className="bc-comment__footer">
         <button type="button" className="bc-btn bc-btn--ghost" onClick={() => setReplying((r) => !r)}>
-          {replying ? "Cancel" : "Reply"}
+          {replying ? t.cancel : t.reply}
         </button>
       </div>
       {replying && (
         <CommentBox
+          t={t}
           signedIn={signedIn}
-          placeholder="Write a reply"
-          submitLabel="Reply"
+          placeholder={t.writeAReply}
+          submitLabel={t.reply}
           onSignIn={onSignIn}
           onSubmit={async (body) => {
             await onReply(comment.id, body);

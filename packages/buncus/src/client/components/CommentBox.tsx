@@ -1,13 +1,16 @@
 import { useState } from "react";
+import type { Translator } from "../i18n.ts";
 
 export function CommentBox({
+  t,
   signedIn,
   placeholder,
-  submitLabel = "Comment",
+  submitLabel = t.comment,
   onSubmit,
   onSignIn,
   onSignOut,
 }: {
+  t: Translator;
   signedIn: boolean;
   placeholder: string;
   submitLabel?: string;
@@ -34,7 +37,7 @@ export function CommentBox({
       <div className="bc-box bc-box--signin">
         <span>{placeholder}</span>
         <button type="button" className="bc-btn bc-btn--primary" onClick={onSignIn}>
-          Sign in with GitHub
+          {t.signInWithGitHub}
         </button>
       </div>
     );
@@ -55,7 +58,7 @@ export function CommentBox({
       <div className="bc-box__actions">
         {onSignOut && (
           <button type="button" className="bc-btn bc-btn--ghost" onClick={onSignOut}>
-            Sign out
+            {t.signOut}
           </button>
         )}
         <button type="button" className="bc-btn bc-btn--primary" disabled={busy || !value.trim()} onClick={submit}>

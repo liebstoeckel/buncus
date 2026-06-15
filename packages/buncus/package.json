@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "bun --hot src/server.ts",
     "build:assets": "bun run scripts/build-assets.ts",
+    "build:i18n": "bun run scripts/build-i18n.ts",
     "compile": "bun run build:assets && bun build --compile --outfile dist/buncus src/server.ts",
     "start": "bun run src/server.ts",
     "demo": "bun run scripts/demo.ts",

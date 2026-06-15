@@ -166,7 +166,6 @@ All tiers run against `@buncus/mock-github` — **no GitHub needed**. 82 tests /
 
 Honest scope boundaries (the goal allowed scoping the clone):
 
-- **i18n** is minimal: widget UI strings are English; only the consent copy is en/de. (giscus: ~35 locales.)
 - **Upvotes**: the GraphQL op exists in giscus' surface but the UI doesn't expose upvoting (GitHub disallows app-issued user tokens upvoting).
 - **No "load more" pagination in the UI**: the widget fetches the first N (default 50) comments; the front/back dual-pagination giscus does isn't implemented (the read API and cursors support it).
 - **No math rendering** (giscus' MathJax `<math-renderer>`) and **no client-side DOMPurify** pass on `bodyHTML` — a hardening TODO; currently relies on GitHub's server-side sanitisation.
@@ -186,7 +185,6 @@ Honest scope boundaries (the goal allowed scoping the clone):
 | React 19 **SSR** + hydration, SWR data layer | static shell + **client-render**, no SWR (plain hooks, refetch-after-write) | D3 |
 | Token handed to browser per giscus; writes browser→GitHub | **all GitHub traffic proxied**; token server-side | D1 |
 | 24 themes ported, Tailwind v4 widget CSS | **3 themes**, hand-written `--bc-*` CSS | D12 |
-| ~35 locales | en + de consent copy only | §8 |
 | `giscus`-compat postMessage flag | `buncus` namespace only | N11 |
 | Origin gating via per-repo `giscus.json` | `ORIGINS` env → CSP | D13 |
 | Layout `src/`, `loader/`, `assets/` at repo root | same, but under `packages/buncus/` (Bun workspace) | layout |

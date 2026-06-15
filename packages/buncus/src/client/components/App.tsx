@@ -3,6 +3,7 @@ import type { IDiscussion, IUser } from "../../github/adapters.ts";
 import type { ReactionContent } from "../../github/graphql.ts";
 import { type CustomError, createDiscussion, fetchDiscussion, postComment, postReply, react } from "../api.ts";
 import type { WidgetConfig } from "../config.ts";
+import { documentLang, makeT } from "../i18n.ts";
 import { emit } from "../messages.ts";
 import { Comment } from "./Comment.tsx";
 import { CommentBox } from "./CommentBox.tsx";
@@ -16,6 +17,8 @@ export function App({ config }: { config: WidgetConfig }) {
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
   const signedIn = !!config.session;
+  // UI strings for the iframe's locale (set on <html lang> by the server).
+  const t = useMemo(() => makeT(documentLang()), []);
   // The embedding page's origin (for postMessage targeting + inbound checks).
   const parentOrigin = useMemo(() => {
     try {
@@ -116,14 +119,15 @@ export function App({ config }: { config: WidgetConfig }) {
   const onReact = (subjectId: string, content: ReactionContent, viewerHasReacted: boolean) =>
     guard(async () => void (await react(config.session, subjectId, content, viewerHasReacted)));
 
-  if (status === "loading") return <div className="bc-status">Loading comments…</div>;
+  if (status === "loading") return <div className="bc-status">{t.loadingComments}</div>;
   if (status === "error") return <div className="bc-status bc-status--error">{error}</div>;
 
   const count = discussion?.totalCommentCount ?? 0;
   const box = (
     <CommentBox
+      t={t}
       signedIn={signedIn}
-      placeholder={signedIn ? "Write a comment" : "Sign in to join the discussion."}
+      placeholder={signedIn ? t.writeAComment : t.signInToComment}
       onSignIn={signIn}
       onSignOut={signedIn ? signOut : undefined}
       onSubmit={onComment}
@@ -134,6 +138,7 @@ export function App({ config }: { config: WidgetConfig }) {
     <div className="bc-root" data-input-position={config.inputPosition}>
       {config.reactionsEnabled && discussion && (
         <Reactions
+          t={t}
           reactions={discussion.reactions}
           disabled={!signedIn}
           onReact={(c, v) => onReact(discussion.id, c, v)}
@@ -141,12 +146,10 @@ export function App({ config }: { config: WidgetConfig }) {
       )}
 
       <header className="bc-header">
-        <span className="bc-header__count">
-          {count} {count === 1 ? "comment" : "comments"}
-        </span>
+        <span className="bc-header__count">{t.comments(count)}</span>
         {discussion && (
           <a className="bc-header__link" href={discussion.url} target="_top" rel="noopener noreferrer">
-            View on GitHub
+            {t.viewOnGitHub}
           </a>
         )}
       </header>
@@ -155,9 +158,17 @@ export function App({ config }: { config: WidgetConfig }) {
 
       <div className="bc-comments">
         {discussion?.comments.map((c) => (
-          <Comment key={c.id} comment={c} signedIn={signedIn} onReact={onReact} onReply={onReply} onSignIn={signIn} />
+          <Comment
+            key={c.id}
+            t={t}
+            comment={c}
+            signedIn={signedIn}
+            onReact={onReact}
+            onReply={onReply}
+            onSignIn={signIn}
+          />
         ))}
-        {count === 0 && <p className="bc-empty">No comments yet. Start the discussion!</p>}
+        {count === 0 && <p className="bc-empty">{t.noComments}</p>}
       </div>
 
       {config.inputPosition === "bottom" && box}

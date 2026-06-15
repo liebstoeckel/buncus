@@ -1,0 +1,172 @@
+#!/usr/bin/env bun
+// Regenerates src/client/i18n.data.ts. Strings shared with giscus are pulled
+// from its upstream locale bundles (locales/<lang>/common.json on the default
+// branch); buncus-only strings (viewOnGitHub, noComments) are maintained inline
+// below. Run with: bun run scripts/build-i18n.ts
+
+const LOCALES =
+  "ar be bg ca cs da de en eo es eu fa fr gr hbs he hu id it ja kh ko nl pl pt ro ru th tr uk uz vi zh-CN zh-HK zh-TW".split(
+    " ",
+  );
+
+// buncus-only strings (no giscus equivalent), hand-translated.
+const viewOnGitHub: Record<string, string> = {
+  ar: "عرض على GitHub",
+  be: "Адкрыць на GitHub",
+  bg: "Преглед в GitHub",
+  ca: "Mostra-ho a GitHub",
+  cs: "Zobrazit na GitHubu",
+  da: "Vis på GitHub",
+  de: "Auf GitHub ansehen",
+  en: "View on GitHub",
+  eo: "Vidi en GitHub",
+  es: "Ver en GitHub",
+  eu: "Ikusi GitHub-en",
+  fa: "مشاهده در GitHub",
+  fr: "Voir sur GitHub",
+  gr: "Προβολή στο GitHub",
+  hbs: "Prikaži na GitHub-u",
+  he: "צפייה ב-GitHub",
+  hu: "Megtekintés a GitHubon",
+  id: "Lihat di GitHub",
+  it: "Visualizza su GitHub",
+  ja: "GitHub で表示",
+  kh: "មើលនៅលើ GitHub",
+  ko: "GitHub에서 보기",
+  nl: "Bekijk op GitHub",
+  pl: "Zobacz na GitHub",
+  pt: "Ver no GitHub",
+  ro: "Vezi pe GitHub",
+  ru: "Открыть на GitHub",
+  th: "ดูบน GitHub",
+  tr: "GitHub'da görüntüle",
+  uk: "Переглянути на GitHub",
+  uz: "GitHub'da ko'rish",
+  vi: "Xem trên GitHub",
+  "zh-CN": "在 GitHub 上查看",
+  "zh-HK": "在 GitHub 上查看",
+  "zh-TW": "在 GitHub 上檢視",
+};
+const noComments: Record<string, string> = {
+  ar: "لا توجد تعليقات بعد. ابدأ النقاش!",
+  be: "Пакуль няма каментарыяў. Пачніце абмеркаванне!",
+  bg: "Все още няма коментари. Започнете дискусията!",
+  ca: "Encara no hi ha comentaris. Comença la conversa!",
+  cs: "Zatím žádné komentáře. Začněte diskuzi!",
+  da: "Ingen kommentarer endnu. Start diskussionen!",
+  de: "Noch keine Kommentare. Starte die Diskussion!",
+  en: "No comments yet. Start the discussion!",
+  eo: "Ankoraŭ neniuj komentoj. Komencu la diskuton!",
+  es: "Aún no hay comentarios. ¡Inicia la conversación!",
+  eu: "Oraindik ez dago iruzkinik. Hasi eztabaida!",
+  fa: "هنوز نظری نیست. بحث را آغاز کنید!",
+  fr: "Aucun commentaire pour l'instant. Lancez la discussion !",
+  gr: "Δεν υπάρχουν ακόμη σχόλια. Ξεκινήστε τη συζήτηση!",
+  hbs: "Još nema komentara. Započnite raspravu!",
+  he: "אין עדיין תגובות. התחילו את הדיון!",
+  hu: "Még nincsenek hozzászólások. Indítsd el a beszélgetést!",
+  id: "Belum ada komentar. Mulai diskusi!",
+  it: "Ancora nessun commento. Inizia la discussione!",
+  ja: "まだコメントはありません。ディスカッションを始めましょう！",
+  kh: "មិនទាន់មានមតិយោបល់នៅឡើយទេ។ ចាប់ផ្តើមការពិភាក្សា!",
+  ko: "아직 댓글이 없습니다. 토론을 시작해 보세요!",
+  nl: "Nog geen reacties. Start de discussie!",
+  pl: "Brak komentarzy. Rozpocznij dyskusję!",
+  pt: "Ainda não há comentários. Inicie a discussão!",
+  ro: "Încă nu există comentarii. Începe discuția!",
+  ru: "Комментариев пока нет. Начните обсуждение!",
+  th: "ยังไม่มีความคิดเห็น เริ่มการสนทนาเลย!",
+  tr: "Henüz yorum yok. Tartışmayı başlatın!",
+  uk: "Коментарів ще немає. Почніть обговорення!",
+  uz: "Hozircha izohlar yo'q. Muhokamani boshlang!",
+  vi: "Chưa có bình luận nào. Hãy bắt đầu thảo luận!",
+  "zh-CN": "还没有评论。开始讨论吧！",
+  "zh-HK": "尚無留言。開始討論吧！",
+  "zh-TW": "尚無留言。開始討論吧！",
+};
+
+const REACTIONS = ["THUMBS_UP", "THUMBS_DOWN", "LAUGH", "HOORAY", "CONFUSED", "HEART", "ROCKET", "EYES"];
+
+const BASE = "https://raw.githubusercontent.com/giscus/giscus/main/locales";
+const bundles: Record<string, any> = {};
+await Promise.all(
+  LOCALES.map(async (l) => {
+    const res = await fetch(`${BASE}/${l}/common.json`);
+    if (!res.ok) throw new Error(`fetch ${l}: ${res.status}`);
+    bundles[l] = await res.json();
+  }),
+);
+const en = bundles.en;
+
+// giscus string with {{count}} -> our {count} placeholder.
+const ph = (s: string) => s.replace(/\{\{count\}\}/g, "{count}");
+
+function strings(l: string) {
+  const g = bundles[l];
+  const pick = (k: string) => g[k] ?? en[k];
+  const reaction: Record<string, string> = {};
+  for (const r of REACTIONS) reaction[r] = g[r] ?? en[r];
+  return {
+    loadingComments: pick("loadingComments"),
+    writeAComment: pick("writeAComment"),
+    signInToComment: pick("signInToComment"),
+    commentsOne: ph(g.comments?.one ?? en.comments.one),
+    commentsOther: ph(g.comments?.other ?? en.comments.other),
+    viewOnGitHub: viewOnGitHub[l] ?? viewOnGitHub.en,
+    noComments: noComments[l] ?? noComments.en,
+    thisCommentWasDeleted: pick("thisCommentWasDeleted"),
+    thisCommentWasMinimized: pick("thisCommentWasMinimized"),
+    cancel: pick("cancel"),
+    reply: pick("reply"),
+    writeAReply: pick("writeAReply"),
+    comment: pick("comment"),
+    signInWithGitHub: pick("signInWithGitHub"),
+    signOut: pick("signOut"),
+    reactionsLabel: pick("addReactions"),
+    reaction,
+  };
+}
+
+const all: Record<string, any> = {};
+for (const l of LOCALES) all[l] = strings(l);
+
+const header = `// Widget UI strings for every locale giscus ships (35 locales). Generated by
+// scripts/build-i18n.ts: strings shared with giscus are taken from its own
+// locale bundles (locales/<lang>/common.json); buncus-only strings
+// (viewOnGitHub, noComments) are maintained here. Do not edit by hand — re-run
+// the script. Locale resolution + fallbacks live in i18n.ts's resolveStrings().
+
+export interface WidgetStrings {
+  loadingComments: string;
+  writeAComment: string;
+  signInToComment: string;
+  /** "{count} comment" (singular). */
+  commentsOne: string;
+  /** "{count} comments" (plural). */
+  commentsOther: string;
+  viewOnGitHub: string;
+  noComments: string;
+  thisCommentWasDeleted: string;
+  thisCommentWasMinimized: string;
+  cancel: string;
+  reply: string;
+  writeAReply: string;
+  comment: string;
+  signInWithGitHub: string;
+  signOut: string;
+  /** aria-label for the reaction button group. */
+  reactionsLabel: string;
+  /** Per-reaction display names, keyed by GitHub reaction content enum. */
+  reaction: Record<string, string>;
+}
+
+export const WIDGET_I18N: Record<string, WidgetStrings> = `;
+
+const out = `${header}${JSON.stringify(all, null, 2)};\n`;
+const target = new URL("../src/client/i18n.data.ts", import.meta.url).pathname;
+await Bun.write(target, out);
+// Normalize to the repo's Biome style (trailing commas etc.) so the generated
+// file passes `bun run check` without a manual format pass.
+const root = new URL("../../..", import.meta.url).pathname;
+Bun.spawnSync(["bun", "run", "check:fix"], { cwd: root, stdout: "ignore", stderr: "ignore" });
+console.log(`wrote ${target} (${(await Bun.file(target).text()).length} bytes, ${LOCALES.length} locales)`);

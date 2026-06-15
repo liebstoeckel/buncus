@@ -2,6 +2,7 @@
 // + the React app bundle. All widget config travels in the URL query (set by
 // the loader), so the app reads it client-side — no per-request SSR needed.
 
+import { isRtl, resolveStrings } from "../client/i18n.ts";
 import { type Config, getConfig, isAllowedOrigin } from "../config.ts";
 import { BUILTIN_THEMES } from "./assets.ts";
 
@@ -42,12 +43,17 @@ function frameAncestors(originParam: string, cfg: Config): string {
   return isAllowedOrigin(origin, cfg) ? `'self' ${origin}` : "'none'";
 }
 
-export function renderWidget(url: URL): Response {
+export function renderWidget(url: URL, lang?: string): Response {
   const cfg = getConfig();
   const theme = url.searchParams.get("theme") ?? "preferred_color_scheme";
   const originParam = url.searchParams.get("origin") ?? "";
   const themeHref = resolveThemeHref(theme, cfg);
   const external = /^https?:\/\//.test(themeHref);
+  // Locale is presentational: it picks the UI strings + text direction. The
+  // client reads the resolved <html lang>; the shell shows a matching loading
+  // string so there's no English flash before the bundle runs.
+  const t = resolveStrings(lang);
+  const langAttr = lang ? ` lang="${escapeAttr(lang)}"${isRtl(lang) ? ' dir="rtl"' : ""}` : "";
 
   const styleSrc = ["'self'", ...cfg.themeOrigins].join(" ");
   const csp = [
@@ -62,7 +68,7 @@ export function renderWidget(url: URL): Response {
   ].join("; ");
 
   const html = `<!doctype html>
-<html>
+<html${langAttr}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -73,7 +79,7 @@ export function renderWidget(url: URL): Response {
   <link rel="stylesheet" id="buncus-theme" href="${escapeAttr(themeHref)}"${external ? ' crossorigin="anonymous"' : ""}>
 </head>
 <body>
-  <div id="buncus-root"><div class="bc-status">Loading comments…</div></div>
+  <div id="buncus-root"><div class="bc-status">${escapeAttr(t.loadingComments)}</div></div>
   <script type="module" src="/widget.js"></script>
 </body>
 </html>`;

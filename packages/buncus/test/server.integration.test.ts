@@ -70,6 +70,23 @@ describe("static assets + widget shell", () => {
     expect(res.status).toBe(200);
   });
 
+  test("locale path sets <html lang> + localized loading shell", async () => {
+    const html = await (await get("/ja/widget")).text();
+    expect(html).toContain('<html lang="ja">');
+    expect(html).toContain("コメントを取得中…"); // ja loadingComments, not the English flash
+  });
+
+  test("RTL locale path adds dir=rtl", async () => {
+    const html = await (await get("/ar/widget")).text();
+    expect(html).toContain('<html lang="ar" dir="rtl">');
+  });
+
+  test("no locale path leaves <html> bare and English", async () => {
+    const html = await (await get("/widget")).text();
+    expect(html).toContain("<html>");
+    expect(html).toContain("Loading comments…");
+  });
+
   test("unknown built-in theme falls back to preferred_color_scheme", async () => {
     const html = await (await get("/widget?theme=bogus")).text();
     expect(html).toContain("/themes/preferred_color_scheme.css");
