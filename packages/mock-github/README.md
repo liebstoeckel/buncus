@@ -54,9 +54,9 @@ GITHUB_APP_ID=123456
 GITHUB_PRIVATE_KEY=<any PEM; the mock does not verify the signature>
 ```
 
-> This relies on buncus making its GitHub base URLs configurable, which the SPEC
-> calls out: `GITHUB_API_HOST` and `GITHUB_OAUTH_HOST` (giscus hard-codes them).
-> That's the one buncus-side change the mock assumes.
+> This relies on buncus making its GitHub base URLs configurable via
+> `GITHUB_API_HOST` and `GITHUB_OAUTH_HOST` (giscus hard-codes them). That's the
+> one buncus-side change the mock assumes.
 
 ## Seed (defaults)
 

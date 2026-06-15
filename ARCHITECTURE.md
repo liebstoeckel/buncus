@@ -4,8 +4,6 @@ This is the **authoritative, as-built** description of buncus: the architecture,
 the data/auth flows, and every load-bearing design decision with its rationale,
 the alternatives considered, and its status.
 
-- [`SPEC.md`](./SPEC.md) is the *original pre-implementation plan*. Where it and
-  this document disagree, **this document wins** (see [§9 Divergences](#9-divergences-from-the-original-spec)).
 - [`packages/buncus/MIGRATION.md`](./packages/buncus/MIGRATION.md) is the giscus→buncus migration guide (a user-facing view of the deviations).
 - [`packages/buncus/README.md`](./packages/buncus/README.md) is the operator/usage doc.
 
@@ -88,7 +86,7 @@ giscus hands the decrypted GitHub user token to browser JS (`/api/oauth/token`) 
 The loader, widget bundle, CSS, and themes are embedded with `with { type: "file" }`; the binary serves them from memory. **Why:** the entire product goal — one file to deploy. **Alternative:** ship a server + a static dir (rejected: not "single binary"). **Status: N.** Note: build order is assets → compile (`scripts/build-assets.ts` then `bun build --compile`).
 
 ### D3 — No widget SSR; static shell + client-render React
-The `/widget` route returns a **static HTML shell** (theme `<link>`, `<base target="_top">`, `#buncus-root`, the bundled `/widget.js`); React mounts client-side and fetches data. **Why:** the theme link already prevents a colour flash; per-request **CSP `frame-ancestors`** is set as a response header regardless; SSR of an authenticated, data-driven widget adds machinery for little gain. **Alternative:** React SSR + hydration (as the SPEC planned) — deferred. **Trade-off:** a brief "Loading comments…" state (same as giscus). **Status: D** (vs SPEC).
+The `/widget` route returns a **static HTML shell** (theme `<link>`, `<base target="_top">`, `#buncus-root`, the bundled `/widget.js`); React mounts client-side and fetches data. **Why:** the theme link already prevents a colour flash; per-request **CSP `frame-ancestors`** is set as a response header regardless; SSR of an authenticated, data-driven widget adds machinery for little gain. **Alternative:** React SSR + hydration, considered but deferred. **Trade-off:** a brief "Loading comments…" state (same as giscus). **Status: D.**
 
 ### D4 — Iframe architecture; loader is a classic script, widget is ESM
 The widget renders in a **cross-origin iframe** the loader injects. **Why:** style isolation from the host page, and the session in the iframe's `localStorage` is partitioned to the buncus origin (host JS can't read it). The **loader must be a classic `<script>`** (bundled IIFE) because it relies on `document.currentScript` to discover its own origin — ES modules have no `currentScript`. The **widget** is an ESM bundle. **Status: P** (giscus is also iframe-based).
@@ -173,20 +171,3 @@ Honest scope boundaries (the goal allowed scoping the clone):
 - **GitHub-side rate-limit (429) simulation** isn't in the mock (the relay code path + mapping exist). buncus' *own* per-IP rate limiting is implemented and tested.
 - **Session revocation** isn't implemented (TTL shortened to 30d as interim mitigation).
 - **Real GitHub**: needs a registered GitHub App (see MIGRATION §Step 1); only mock-verified so far.
-
----
-
-## 9. Divergences from the original SPEC
-
-`SPEC.md` was written before implementation. As-built differences:
-
-| SPEC planned | As built | Decision |
-|---|---|---|
-| React 19 **SSR** + hydration, SWR data layer | static shell + **client-render**, no SWR (plain hooks, refetch-after-write) | D3 |
-| Token handed to browser per giscus; writes browser→GitHub | **all GitHub traffic proxied**; token server-side | D1 |
-| 24 themes ported, Tailwind v4 widget CSS | **3 themes**, hand-written `--bc-*` CSS | D12 |
-| `giscus`-compat postMessage flag | `buncus` namespace only | N11 |
-| Origin gating via per-repo `giscus.json` | `ORIGINS` env → CSP | D13 |
-| Layout `src/`, `loader/`, `assets/` at repo root | same, but under `packages/buncus/` (Bun workspace) | layout |
-
-The SPEC remains useful as the design narrative and the full giscus reverse-engineering reference; this document is the source of truth for what exists.

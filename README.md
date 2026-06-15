@@ -21,7 +21,6 @@ database, no CDN.
 | Doc | What it covers |
 |---|---|
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | The as-built architecture, data/auth flows, and the design-decision log (rationale, alternatives, status). Start here. |
-| [`SPEC.md`](./SPEC.md) | The original pre-implementation plan plus the giscus reverse-engineering notes. It diverges from what was actually built; see ARCHITECTURE §9. |
 | [`packages/buncus/README.md`](./packages/buncus/README.md) | Operator/usage: quick start, env vars, embed attributes, theming, dev/test. |
 | [`packages/buncus/MIGRATION.md`](./packages/buncus/MIGRATION.md) | Migrating an existing giscus embed to buncus (deviations, attribute map, theme map). |
 | [`packages/mock-github/README.md`](./packages/mock-github/README.md) · [`SCHEMAS.md`](./packages/mock-github/SCHEMAS.md) | The GitHub mock used to build and test offline, and how its shapes are grounded in GitHub's API. |
@@ -30,7 +29,7 @@ database, no CDN.
 
 ```
 buncus/
-├── ARCHITECTURE.md · SPEC.md · README.md
+├── ARCHITECTURE.md · README.md
 ├── giscus-eval/                 reference clone of giscus/giscus (gitignored)
 └── packages/
     ├── buncus/                  the server, loader, widget, themes, demo, tests

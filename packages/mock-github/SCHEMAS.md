@@ -65,7 +65,7 @@ Details that matter for compatibility:
 - **access_tokens**: real status is **`201`** with
   `{ token, expires_at, permissions, repository_selection }`. giscus reads
   `token` + `expires_at` and caches them (see the `bun:sqlite` token cache in
-  the buncus SPEC). Tokens last 1h (mirrored).
+  buncus). Tokens last 1h (mirrored).
 - **check-token**: authenticated with **Basic `base64(client_id:client_secret)`**
   and body `{ access_token }`. giscus validates `data.app.client_id === client_id`
   (`services/github/oauth.ts`). Mock returns the *authorization* object

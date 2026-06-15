@@ -22,7 +22,7 @@ no CDN: one executable, a SQLite file, and env vars.
 - Bun everything: `Bun.serve`, `bun:sqlite`, native `crypto.subtle`, `bun test`, React 19.
 
 > Coming from giscus? See [`MIGRATION.md`](./MIGRATION.md). It's mostly a one-line
-> `<script src>` swap. Design rationale is in the repo-root [`SPEC.md`](../../SPEC.md).
+> `<script src>` swap. Design rationale is in the repo-root [`ARCHITECTURE.md`](../../ARCHITECTURE.md).
 
 ## Quick start
 
@@ -108,7 +108,7 @@ bun:sqlite          ← App installation-token cache
 ```
 
 - Reads (thread, categories): anonymous requests use the App installation token; signed-in requests use the user token.
-- Pagination: comments load giscus-style front/back — the newest page is pinned and an oldest-first stream grows from a "load more" button (15 per page), with an oldest/newest order toggle. Each "load more" is one extra GraphQL read on the same token bucket, so on a single-repo self-host (App token ≈ 5,000 points/hr shared across anonymous readers) very high-traffic threads can hit the 429 that prompts visitors to sign in.
+- Pagination: comments load giscus-style front/back. The newest page is pinned and an oldest-first stream grows from a "load more" button (15 per page), with an oldest/newest order toggle. Each "load more" is one extra GraphQL read on the same token bucket, so on a single-repo self-host (App token ≈ 5,000 points/hr shared across anonymous readers) very high-traffic threads can hit the 429 that prompts visitors to sign in.
 - Writes (comment, reply, reaction): require a signed-in session and run server-side.
 - OAuth: `/api/oauth/authorize` → GitHub → `/api/oauth/authorized`, then the encrypted session is returned to the page in the URL fragment (`#buncus=`, validated against the `ORIGINS` allowlist), never the query string.
 
