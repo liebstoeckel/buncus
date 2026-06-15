@@ -78,7 +78,7 @@ jobs:
             org.opencontainers.image.title=buncus
             org.opencontainers.image.description=Self-hosted, themeable host for GitHub Discussions comments. A Bun-native giscus reimplementation.
             org.opencontainers.image.documentation=https://github.com/liebstoeckel/buncus/tree/main/packages/buncus#readme
-            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.licenses=
 
       - uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         id: build
