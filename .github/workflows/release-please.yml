@@ -43,6 +43,7 @@ jobs:
     permissions:
       contents: read
       packages: write # push to ghcr.io/<owner>/<repo>
+      id-token: write # OIDC token for keyless cosign signing (Sigstore)
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
@@ -60,6 +61,9 @@ jobs:
 
       - uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         id: meta
+        env:
+          # Apply OCI annotations to the image index too, not just per-arch manifests.
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
           images: ghcr.io/${{ github.repository }}
           # Derive the version tags from the release-please tag (e.g. v0.1.0 ->
@@ -68,16 +72,37 @@ jobs:
             type=semver,pattern={{version}},value=${{ needs.release-please.outputs.tag_name }}
             type=semver,pattern={{major}}.{{minor}},value=${{ needs.release-please.outputs.tag_name }}
             type=raw,value=latest
+          # Pin the OCI labels explicitly rather than relying on GitHub's repo
+          # metadata; metadata-action mirrors these into the annotations output.
+          labels: |
+            org.opencontainers.image.title=buncus
+            org.opencontainers.image.description=Self-hosted, themeable host for GitHub Discussions comments. A Bun-native giscus reimplementation.
+            org.opencontainers.image.documentation=https://github.com/liebstoeckel/buncus/tree/main/packages/buncus#readme
+            org.opencontainers.image.licenses=MIT
 
       - uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        id: build
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          # SLSA provenance + SBOM attestations, attached to the image index.
+          provenance: true
+          sbom: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Keyless signing via the workflow's OIDC identity (no key material). Signs
+      # the immutable index digest, not a mutable tag. The signature lands in GHCR
+      # next to the image and is logged in the Rekor transparency log.
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - name: Sign image
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: cosign sign --yes "ghcr.io/${{ github.repository }}@${DIGEST}"
 
   # Cross-compile the standalone binary for every supported target and attach the
   # artifacts (plus a checksum file) to the GitHub release. Bun cross-compiles all
@@ -88,12 +113,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # upload assets to the release
+      id-token: write # OIDC token for keyless cosign signing (Sigstore)
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: 1.3.14
+
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -128,6 +156,13 @@ jobs:
           done
           ( cd dist/release && sha256sum * > SHA256SUMS.txt )
           ls -l dist/release
+
+      # Keyless-sign the checksum file (which covers every binary + the license
+      # report). One signature secures the whole set: verify the bundle against
+      # SHA256SUMS.txt, then verify each artifact against its line in that file.
+      - name: Sign checksums
+        working-directory: packages/buncus/dist/release
+        run: cosign sign-blob --yes --bundle SHA256SUMS.txt.cosign.bundle SHA256SUMS.txt
 
       - name: Upload binaries to release
         env:
