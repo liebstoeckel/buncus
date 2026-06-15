@@ -2,8 +2,7 @@
 
 A single self-contained binary that hosts [GitHub Discussions](https://docs.github.com/discussions)
 comments on your site. It's a Bun-native, themeable, GDPR-by-default reimplementation
-of [giscus](https://giscus.app). No Node, no `node_modules`, no external database,
-no CDN: one executable, a SQLite file, and env vars.
+of [giscus](https://giscus.app).
 
 > **Status: experimental, pre-1.0.** This is a mostly vibe-coded experiment built
 > for internal use cases, and is not production ready. Before 1.0, breaking

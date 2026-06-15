@@ -3,8 +3,7 @@
 A single self-contained binary that hosts [GitHub Discussions](https://docs.github.com/discussions)
 comments on your site. It's a Bun-native, themeable, GDPR-by-default reimplementation
 of [giscus](https://giscus.app). Comments live in GitHub Discussions; buncus is the
-hosting, proxy, and UI layer in front of them. No Node, no `node_modules`, no
-database, no CDN.
+hosting, proxy, and UI layer in front of them.
 
 > **Status: experimental, pre-1.0.** This is a mostly vibe-coded experiment built
 > for internal use cases, and is not production ready. Before 1.0, breaking
