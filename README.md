@@ -1,19 +1,20 @@
 # buncus
 
-A **single self-contained binary** that hosts [GitHub Discussions](https://docs.github.com/discussions)
-comments on your site — a Bun-native, themeable, GDPR-by-default reimplementation
-of [giscus](https://giscus.app). Comments live in GitHub Discussions; buncus is
-the hosting + proxy + UI layer. No Node, no `node_modules`, no database, no CDN.
+A single self-contained binary that hosts [GitHub Discussions](https://docs.github.com/discussions)
+comments on your site. It's a Bun-native, themeable, GDPR-by-default reimplementation
+of [giscus](https://giscus.app). Comments live in GitHub Discussions; buncus is the
+hosting, proxy, and UI layer in front of them. No Node, no `node_modules`, no
+database, no CDN.
 
 ## Documentation map
 
 | Doc | What it covers |
 |---|---|
-| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | **As-built** architecture, data/auth flows, and the full **design-decision log** (rationale, alternatives, status). Start here. |
-| [`SPEC.md`](./SPEC.md) | The original pre-implementation plan + the giscus reverse-engineering reference. (Diverges from as-built — see ARCHITECTURE §9.) |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | The as-built architecture, data/auth flows, and the design-decision log (rationale, alternatives, status). Start here. |
+| [`SPEC.md`](./SPEC.md) | The original pre-implementation plan plus the giscus reverse-engineering notes. It diverges from what was actually built; see ARCHITECTURE §9. |
 | [`packages/buncus/README.md`](./packages/buncus/README.md) | Operator/usage: quick start, env vars, embed attributes, theming, dev/test. |
 | [`packages/buncus/MIGRATION.md`](./packages/buncus/MIGRATION.md) | Migrating an existing giscus embed to buncus (deviations, attribute map, theme map). |
-| [`packages/mock-github/README.md`](./packages/mock-github/README.md) · [`SCHEMAS.md`](./packages/mock-github/SCHEMAS.md) | The GitHub mock used to build/test offline, and how its shapes are grounded in GitHub's API. |
+| [`packages/mock-github/README.md`](./packages/mock-github/README.md) · [`SCHEMAS.md`](./packages/mock-github/SCHEMAS.md) | The GitHub mock used to build and test offline, and how its shapes are grounded in GitHub's API. |
 
 ## Workspace layout
 
@@ -35,21 +36,20 @@ bun test packages                         # 82 tests, all offline via @buncus/mo
 bun run --cwd packages/buncus demo        # live local demo (mock + binary + host page)
 ```
 
-To run against real GitHub you need a registered GitHub App — see
+To run against real GitHub you need a registered GitHub App; see
 [`MIGRATION.md`](./packages/buncus/MIGRATION.md) §Step 1. Everything else (build,
-test, demo) runs with **no GitHub access**.
+test, demo) runs with no GitHub access.
 
 ## Status
 
-Functioning, tested (unit · integration · render · loader-DOM · Playwright e2e ·
-binary smoke), single binary verified end-to-end against the mock.
+Functioning and tested (unit, integration, render, loader-DOM, Playwright e2e, and
+binary smoke), with the single binary verified end to end against the mock.
 
 ## License & attribution
 
 buncus is [MIT licensed](./LICENSE).
 
-It is a reimplementation of [**giscus**](https://github.com/giscus/giscus) by
-Sage M. Abdullah and contributors, and incorporates code derived from it —
-notably the GitHub GraphQL queries and parts of the client/proxy architecture
-and `data-*` embed model. giscus is MIT licensed; its notice is reproduced in
-[`LICENSE`](./LICENSE).
+It is a reimplementation of [giscus](https://github.com/giscus/giscus) by
+Sage M. Abdullah and contributors, and it reuses code from giscus: the GitHub
+GraphQL queries, parts of the client/proxy architecture, and the `data-*` embed
+model. giscus is MIT licensed, and its notice is reproduced in [`LICENSE`](./LICENSE).

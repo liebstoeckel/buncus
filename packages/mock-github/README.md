@@ -1,20 +1,20 @@
 # @buncus/mock-github
 
-A dependency-free, **stateful** mock of the GitHub surfaces that buncus (and
-giscus) depend on, so the rest of buncus can be built and tested **without any
-GitHub access**. Pure Bun — `Bun.serve`, web `fetch`, no npm deps.
+A dependency-free, stateful mock of the GitHub surfaces that buncus (and giscus)
+depend on, so the rest of buncus can be built and tested without any GitHub
+access. It's pure Bun: `Bun.serve`, web `fetch`, no npm deps.
 
-It reproduces three surfaces on **one origin**:
+It reproduces three surfaces on one origin:
 
-- **OAuth web flow** — `/login/oauth/authorize`, `/login/oauth/access_token`
-- **REST** — repo installation, installation access tokens, check-token,
-  repo contents (`giscus.json`), markdown
-- **GraphQL Discussions** — search/get discussions, categories, create
-  discussion, add comment/reply, toggle reaction/upvote
+- OAuth web flow: `/login/oauth/authorize`, `/login/oauth/access_token`
+- REST: repo installation, installation access tokens, check-token, repo
+  contents (`giscus.json`), markdown
+- GraphQL Discussions: search/get discussions, categories, create discussion,
+  add comment/reply, toggle reaction/upvote
 
 State is in-memory and persists for the instance's lifetime, so a client can
-create a discussion → comment → reply → react → **read it back**. Shapes are
-grounded in GitHub's OpenAPI/docs and in what buncus actually consumes — see
+create a discussion, comment, reply, react, and read it all back. The shapes are
+grounded in GitHub's OpenAPI/docs and in what buncus actually consumes; see
 [`SCHEMAS.md`](./SCHEMAS.md).
 
 ## Use it in tests (in-process, no port)
@@ -43,7 +43,7 @@ bun run packages/mock-github/src/cli.ts --port 4500
 bun run mock -- --port 4500
 ```
 
-Then point buncus at the single origin for **both** hosts:
+Then point buncus at the single origin for both hosts:
 
 ```sh
 GITHUB_API_HOST=http://localhost:4500
@@ -51,12 +51,12 @@ GITHUB_OAUTH_HOST=http://localhost:4500
 GITHUB_CLIENT_ID=Iv1.mockclient0000
 GITHUB_CLIENT_SECRET=mock_client_secret_value
 GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY=<any PEM — signature is not verified by the mock>
+GITHUB_PRIVATE_KEY=<any PEM; the mock does not verify the signature>
 ```
 
-> This requires buncus to make its GitHub base URLs configurable (the SPEC notes
-> this: `GITHUB_API_HOST` / `GITHUB_OAUTH_HOST` — giscus hard-codes them). That's
-> the one buncus-side change the mock assumes.
+> This relies on buncus making its GitHub base URLs configurable, which the SPEC
+> calls out: `GITHUB_API_HOST` and `GITHUB_OAUTH_HOST` (giscus hard-codes them).
+> That's the one buncus-side change the mock assumes.
 
 ## Seed (defaults)
 
@@ -73,15 +73,16 @@ CLI flags `--client-id`, `--client-secret`, `--app-id`, `--port`.
 
 ## Knobs
 
-- `?mock_error=access_denied` on `/login/oauth/authorize` → simulate the user
+- `?mock_error=access_denied` on `/login/oauth/authorize` simulates the user
   cancelling.
-- `?mock_interactive=1` → render a clickable consent page instead of
+- `?mock_interactive=1` renders a clickable consent page instead of
   auto-approving.
-- `?mock_user=<login>` on `/login/oauth/authorize` → authenticate as a specific
-  seeded user instead of the default viewer (the basis for multi-user flows;
+- `?mock_user=<login>` on `/login/oauth/authorize` authenticates as a specific
+  seeded user instead of the default viewer (this backs the multi-user flows;
   unknown logins are rejected with `unknown_mock_user`).
-- `mock.store` is the live state — seed before a flow, assert after. Add users
-  with `store.addUser(...)` and select the OAuth viewer with `store.viewerUserId`.
+- `mock.store` is the live state, so you can seed before a flow and assert after.
+  Add users with `store.addUser(...)` and select the OAuth viewer with
+  `store.viewerUserId`.
 
 ## Tests
 
