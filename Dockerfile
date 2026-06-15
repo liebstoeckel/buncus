@@ -38,12 +38,19 @@ RUN bun install --frozen-lockfile --production
 COPY . .
 RUN cd packages/buncus && bun run compile     # -> packages/buncus/dist/buncus
 
+# Generate the third-party attribution report for everything embedded in the
+# binary (bundled JS deps + the Bun runtime's bundled libs, incl. LGPL WebKit).
+# Needs network to fetch Bun's LICENSE.md for the running version.
+RUN cd packages/buncus && bun run scripts/third-party-licenses.ts dist/THIRD_PARTY_LICENSES.txt
+
 ########################################
 # Stage 2 — distroless runtime
 ########################################
 # :nonroot runs as uid 65532; glibc + CA certs + NSS are already present.
 FROM gcr.io/distroless/cc-debian13:nonroot
 COPY --from=builder /app/packages/buncus/dist/buncus /app/buncus
+# Third-party license/attribution notice for the bundled software.
+COPY --from=builder /app/packages/buncus/dist/THIRD_PARTY_LICENSES.txt /THIRD_PARTY_LICENSES.txt
 
 ENV PORT=4600 \
     BUNCUS_DB=:memory:
