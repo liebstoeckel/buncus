@@ -6,6 +6,11 @@ of [giscus](https://giscus.app). Comments live in GitHub Discussions; buncus is 
 hosting, proxy, and UI layer in front of them. No Node, no `node_modules`, no
 database, no CDN.
 
+> **Status: experimental, pre-1.0.** This is a mostly vibe-coded experiment built
+> for internal use cases, and is not production ready. Before 1.0, breaking
+> changes can land in any release without a major-version bump, so pin an exact
+> version if you depend on it.
+
 ## Documentation map
 
 | Doc | What it covers |

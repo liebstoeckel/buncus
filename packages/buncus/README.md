@@ -5,6 +5,11 @@ comments on your site. It's a Bun-native, themeable, GDPR-by-default reimplement
 of [giscus](https://giscus.app). No Node, no `node_modules`, no external database,
 no CDN: one executable, a SQLite file, and env vars.
 
+> **Status: experimental, pre-1.0.** This is a mostly vibe-coded experiment built
+> for internal use cases, and is not production ready. Before 1.0, breaking
+> changes can land in any release without a major-version bump, so pin an exact
+> version if you depend on it.
+
 - Single binary: `bun build --compile`, which embeds the loader, widget, CSS, and themes.
 - Themeable: CSS-variable themes (`light` / `dark` / `preferred_color_scheme`) plus any custom CSS URL, with a small default theme included.
 - GDPR-by-default: nothing touches GitHub until the visitor opts in (a consent toggle gates the iframe before it's inlined).
