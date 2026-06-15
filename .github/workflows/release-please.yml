@@ -1,0 +1,25 @@
+name: release-please
+
+# Fully driven by GitHub Actions: every push to main updates a release PR
+# (changelog + version bump for @liebstoeckel/buncus-server). Merging that PR
+# creates the git tag and the GitHub release. Only packages/buncus is released
+# (see release-please-config.json); packages/mock-github is not.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          # Uses the default GITHUB_TOKEN. To have the release PR / release event
+          # trigger other workflows (e.g. CI on the PR), supply a PAT instead:
+          # token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
