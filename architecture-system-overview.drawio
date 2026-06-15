@@ -1,0 +1,95 @@
+<mxGraphModel dx="1240" dy="640" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="640" math="0" shadow="0" adaptiveColors="auto">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+
+    <mxCell id="title" value="buncus system overview" style="text;html=0;align=left;verticalAlign=middle;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="40" y="16" width="500" height="26" as="geometry"/>
+    </mxCell>
+    <mxCell id="subtitle" value="Three actors, two trust boundaries: the iframe, and the buncus-to-GitHub hop." style="text;html=0;align=left;verticalAlign=middle;fontSize=12;fontColor=#555555;" vertex="1" parent="1">
+      <mxGeometry x="40" y="44" width="760" height="20" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="zoneA" value="Embedding page (any origin)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontStyle=1;fontSize=13;spacingTop=6;" vertex="1" parent="1">
+      <mxGeometry x="40" y="80" width="330" height="430" as="geometry"/>
+    </mxCell>
+    <mxCell id="zoneB" value="buncus binary (one origin, one process)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;fontStyle=1;fontSize=13;spacingTop=6;" vertex="1" parent="1">
+      <mxGeometry x="460" y="80" width="420" height="470" as="geometry"/>
+    </mxCell>
+    <mxCell id="zoneC" value="GitHub (or @buncus/mock-github)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffe6cc;strokeColor=#d79b00;verticalAlign=top;fontStyle=1;fontSize=13;spacingTop=6;" vertex="1" parent="1">
+      <mxGeometry x="960" y="150" width="300" height="330" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="aScript" value="&lt;script src=buncus.js …&gt;" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="70" y="130" width="270" height="44" as="geometry"/>
+    </mxCell>
+    <mxCell id="aIframe" value="iframe  (trust boundary)" style="rounded=0;whiteSpace=wrap;html=0;dashed=1;dashPattern=6 6;strokeColor=#b85450;strokeWidth=2;fillColor=none;verticalAlign=top;fontStyle=2;fontColor=#b85450;fontSize=12;spacingTop=4;" vertex="1" parent="1">
+      <mxGeometry x="58" y="200" width="294" height="295" as="geometry"/>
+    </mxCell>
+    <mxCell id="aConsent" value="CONSENT GATE&#10;(inlined, no network)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="78" y="240" width="254" height="56" as="geometry"/>
+    </mxCell>
+    <mxCell id="aWidget" value="&lt;iframe&gt; widget&#10;React 19, client&#10;fetches /api/*" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="78" y="330" width="254" height="140" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="bAssets" value="/buncus.js  (loader)&#10;/default.css  /widget.css  /themes/*.css&#10;(embedded in binary, CORS)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="480" y="130" width="380" height="66" as="geometry"/>
+    </mxCell>
+    <mxCell id="bWidgetRoute" value="GET /{lang?}/widget&#10;HTML shell + CSP&#10;(theme &lt;link&gt;, /widget.js)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="480" y="212" width="380" height="66" as="geometry"/>
+    </mxCell>
+    <mxCell id="bApi" value="/api/*  (proxy)&#10;/discussions  /comment  /reply&#10;/reaction  /categories  /oauth/*" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="480" y="294" width="380" height="74" as="geometry"/>
+    </mxCell>
+    <mxCell id="bSqlite" value="bun:sqlite&#10;App installation-token cache" style="shape=cylinder3;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;boundedLbl=1;backgroundOutline=1;size=12;verticalAlign=middle;" vertex="1" parent="1">
+      <mxGeometry x="540" y="386" width="260" height="60" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="cGraphql" value="GraphQL&#10;/graphql" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="980" y="195" width="260" height="54" as="geometry"/>
+    </mxCell>
+    <mxCell id="cRest" value="REST&#10;/repos  /app  /…" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="980" y="265" width="260" height="54" as="geometry"/>
+    </mxCell>
+    <mxCell id="cOauth" value="OAuth&#10;/login/oauth/*" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="980" y="335" width="260" height="54" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="tb2line" value="" style="endArrow=none;dashed=1;dashPattern=6 6;strokeColor=#b85450;strokeWidth=2;html=0;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="920" y="120" as="sourcePoint"/>
+        <mxPoint x="920" y="500" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="tb2label" value="trust boundary&#10;(server to GitHub)" style="text;html=0;align=center;verticalAlign=middle;fontStyle=2;fontColor=#b85450;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="860" y="92" width="120" height="28" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="e1" value="GET" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.4;entryDx=0;entryDy=0;" edge="1" parent="1" source="aScript" target="bAssets">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e2" value="iframe src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.2;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aIframe" target="bWidgetRoute">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e3" value="postMessage (resize)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;startArrow=block;endArrow=block;fontSize=11;horizontal=0;labelBackgroundColor=#dae8fc;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="aScript" target="aWidget">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="50" y="174"/>
+          <mxPoint x="50" y="365"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e4" value="same-origin fetch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aWidget" target="bApi">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e5" value="HTTP:  GraphQL / REST / OAuth&#10;(token stays server-side)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;startArrow=block;endArrow=block;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="bApi" target="cRest">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="note" value="The browser NEVER talks to GitHub directly; the GitHub token never leaves the server." style="rounded=0;whiteSpace=wrap;html=0;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=2;fontSize=13;align=center;" vertex="1" parent="1">
+      <mxGeometry x="40" y="572" width="1220" height="34" as="geometry"/>
+    </mxCell>
+
+  </root>
+</mxGraphModel>

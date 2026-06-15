@@ -27,23 +27,7 @@ Stack: **Bun ≥ 1.3 · React 19 · `bun:sqlite` · native `crypto.subtle` · `n
 
 Three actors, two trust boundaries (the iframe, and the buncus↔GitHub hop).
 
-```
-   Embedding page (any origin)              buncus binary (one origin, one process)        GitHub (or @buncus/mock-github)
- ┌───────────────────────────┐          ┌───────────────────────────────────────┐      ┌──────────────────────────┐
- │ <script src=buncus.js …>   │  GET     │ /buncus.js   (loader, embedded, CORS)   │      │                          │
- │                            │─────────▶│ /default.css /widget.css /themes/*.css  │      │                          │
- │  ┌──────────────────────┐  │          │                                         │      │                          │
- │  │ CONSENT GATE          │  │ iframe   │ GET /{lang?}/widget  (HTML shell + CSP) │      │                          │
- │  │  (inlined, no network)│  │ src      │      └─ theme <link>, /widget.js        │      │                          │
- │  ├──────────────────────┤  │─────────▶│                                         │      │                          │
- │  │ <iframe> widget       │  │          │ widget.js (React 19) ── same-origin ──▶ │      │                          │
- │  │  React 19, client     │◀─┼ postMsg  │ /api/discussions /comment /reply        │ HTTP │  GraphQL  /graphql       │
- │  │  fetches /api/*        │  │ resize   │ /reaction /categories /oauth/*          │─────▶│  REST  /repos /app /…    │
- │  └──────────────────────┘  │          │                                         │◀─────│  OAuth /login/oauth/*    │
- └───────────────────────────┘          │ bun:sqlite ← App installation-token cache│      └──────────────────────┘
-                                         └───────────────────────────────────────┘
-        the browser NEVER talks to GitHub directly; the GitHub token never leaves the server.
-```
+![buncus system overview: the embedding page, the buncus binary, and GitHub, with the iframe and the server-to-GitHub trust boundaries marked. The browser never talks to GitHub directly.](./architecture-system-overview.drawio.png)
 
 **Two halves over `postMessage`:** the **loader** (runs on the host page) and the
 **widget** (React app inside the iframe). They communicate only via
