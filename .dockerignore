@@ -1,0 +1,11 @@
+# Build context hygiene — keep the image build fast and reproducible.
+node_modules
+**/node_modules
+**/dist
+giscus-eval
+.idea
+.git
+*.md
+!packages/buncus/package.json
+Dockerfile
+.dockerignore

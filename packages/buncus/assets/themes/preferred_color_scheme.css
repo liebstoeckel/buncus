@@ -1,0 +1,37 @@
+/* Follows the OS colour scheme: light tokens by default, dark under the
+   prefers-color-scheme media query. */
+:root {
+  --bc-bg: #ffffff;
+  --bc-fg: #1f2328;
+  --bc-muted: #59636e;
+  --bc-border: #d1d9e0;
+  --bc-accent: #0969da;
+  --bc-btn-bg: #f6f8fa;
+  --bc-btn-hover: #eef1f4;
+  --bc-primary: #1f883d;
+  --bc-primary-hover: #1a7f37;
+  --bc-primary-fg: #ffffff;
+  --bc-code-bg: #eff1f3;
+  --bc-reaction-bg: #f6f8fa;
+  --bc-reaction-active-bg: #ddf4ff;
+  --bc-reaction-active-border: #54aeff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bc-bg: #0d1117;
+    --bc-fg: #e6edf3;
+    --bc-muted: #9198a1;
+    --bc-border: #30363d;
+    --bc-accent: #4493f8;
+    --bc-btn-bg: #21262d;
+    --bc-btn-hover: #30363d;
+    --bc-primary: #238636;
+    --bc-primary-hover: #2ea043;
+    --bc-primary-fg: #ffffff;
+    --bc-code-bg: #161b22;
+    --bc-reaction-bg: #21262d;
+    --bc-reaction-active-bg: #121d2f;
+    --bc-reaction-active-border: #1f6feb;
+  }
+}

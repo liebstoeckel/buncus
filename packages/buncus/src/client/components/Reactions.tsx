@@ -1,0 +1,36 @@
+import type { IReactionGroups } from "../../github/adapters.ts";
+import { REACTIONS, type ReactionContent } from "../../shared/reactions.ts";
+import { reactionEmoji } from "../messages.ts";
+
+export function Reactions({
+  reactions,
+  disabled,
+  onReact,
+}: {
+  reactions: IReactionGroups;
+  disabled?: boolean;
+  onReact: (content: ReactionContent, viewerHasReacted: boolean) => void;
+}) {
+  return (
+    <div className="bc-reactions" role="group" aria-label="Reactions">
+      {REACTIONS.map((content) => {
+        const r = reactions[content];
+        const active = r.viewerHasReacted;
+        return (
+          <button
+            key={content}
+            type="button"
+            className={"bc-reaction" + (active ? " bc-reaction--active" : "")}
+            disabled={disabled}
+            aria-pressed={active}
+            title={content.toLowerCase()}
+            onClick={() => onReact(content, active)}
+          >
+            <span className="bc-reaction__emoji">{reactionEmoji[content]}</span>
+            {r.count > 0 && <span className="bc-reaction__count">{r.count}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}

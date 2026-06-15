@@ -1,0 +1,17 @@
+/* buncus default theme — light (GitHub Primer-ish). */
+:root {
+  --bc-bg: #ffffff;
+  --bc-fg: #1f2328;
+  --bc-muted: #59636e;
+  --bc-border: #d1d9e0;
+  --bc-accent: #0969da;
+  --bc-btn-bg: #f6f8fa;
+  --bc-btn-hover: #eef1f4;
+  --bc-primary: #1f883d;
+  --bc-primary-hover: #1a7f37;
+  --bc-primary-fg: #ffffff;
+  --bc-code-bg: #eff1f3;
+  --bc-reaction-bg: #f6f8fa;
+  --bc-reaction-active-bg: #ddf4ff;
+  --bc-reaction-active-border: #54aeff;
+}

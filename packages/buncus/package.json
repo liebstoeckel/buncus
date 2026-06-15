@@ -1,0 +1,27 @@
+{
+  "name": "@buncus/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "buncus — a single-binary, themeable host for GitHub Discussions comments (a Bun-native giscus clone).",
+  "license": "MIT",
+  "bin": {
+    "buncus": "./src/server.ts"
+  },
+  "scripts": {
+    "dev": "bun --hot src/server.ts",
+    "build:assets": "bun run scripts/build-assets.ts",
+    "compile": "bun run build:assets && bun build --compile --outfile dist/buncus src/server.ts",
+    "start": "bun run src/server.ts",
+    "demo": "bun run scripts/demo.ts",
+    "test": "bun test",
+    "test:e2e": "bun test test/e2e"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@buncus/mock-github": "workspace:*"
+  }
+}

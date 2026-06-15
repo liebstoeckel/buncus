@@ -1,0 +1,64 @@
+/* Parent-page styles: iframe sizing + the consent gate (which renders in the
+   host page before the iframe is injected). Prepended to <head> so the host
+   site can override. */
+
+.buncus,
+.buncus * {
+  box-sizing: border-box;
+}
+
+.buncus-frame {
+  width: 100%;
+  border: none;
+  color-scheme: light dark;
+  overflow: hidden;
+}
+
+.buncus-consent {
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 16px;
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: #1f2328;
+  background: #f6f8fa;
+}
+
+@media (prefers-color-scheme: dark) {
+  .buncus-consent {
+    border-color: #30363d;
+    color: #e6edf3;
+    background: #161b22;
+  }
+}
+
+.buncus-consent__text {
+  margin: 0 0 12px;
+}
+
+.buncus-consent__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.buncus-consent__load {
+  cursor: pointer;
+  border: 1px solid rgba(31, 35, 40, 0.15);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-weight: 600;
+  color: #fff;
+  background: #1f883d;
+}
+
+.buncus-consent__load:hover {
+  background: #1a7f37;
+}
+
+.buncus-consent__remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}

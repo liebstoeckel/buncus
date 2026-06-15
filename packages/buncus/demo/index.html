@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-theme="{{theme}}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A buncus demo page." />
+    <title>buncus demo — {{theme}}</title>
+    <style>
+      body {
+        font: 16px/1.6 system-ui, sans-serif;
+        max-width: 760px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+        background: #fff;
+        color: #1f2328;
+      }
+      /* Match the widget: an explicit data-theme wins; preferred_color_scheme
+         (the default) follows the OS — the same source the widget uses. */
+      [data-theme="dark"] body {
+        background: #0d1117;
+        color: #e6edf3;
+      }
+      @media (prefers-color-scheme: dark) {
+        [data-theme="preferred_color_scheme"] body {
+          background: #0d1117;
+          color: #e6edf3;
+        }
+      }
+      h1 {
+        margin-bottom: 0.25rem;
+      }
+      .lead {
+        color: #59636e;
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>buncus demo</h1>
+    <p class="lead">GitHub Discussions comments, served from a single binary. Theme: <strong>{{theme}}</strong>.</p>
+    <article>
+      <p>
+        This page embeds the buncus loader below. With <code>data-consent="required"</code> nothing is loaded from
+        GitHub until you click <em>Load comments</em>.
+      </p>
+    </article>
+
+    <!-- The buncus embed. Drop-in compatible with giscus' data-* attributes. -->
+    <script
+      src="{{origin}}/buncus.js"
+      data-repo="acme/docs"
+      data-repo-id="{{repoId}}"
+      data-category="General"
+      data-category-id="{{categoryId}}"
+      data-mapping="specific"
+      data-term="guide/start"
+      data-theme="{{theme}}"
+      data-consent="required"
+      data-privacy-url="/privacy"
+      crossorigin="anonymous"
+      async
+    ></script>
+  </body>
+</html>
