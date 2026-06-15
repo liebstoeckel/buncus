@@ -59,6 +59,7 @@ The canonical references are `ARCHITECTURE.md` (as-built design + decision log),
 
 - **Biome** (`biome.json`) is the formatter/linter: 2-space indent, double quotes, semicolons, line width 120. `noNonNullAssertion` and `noExplicitAny` are intentionally **off** — this codebase uses non-null assertions deliberately, so prefer `x!.y` over restructuring when a value is known-present (especially in tests). HTML files are excluded from Biome (its parser chokes on the demo's `{{theme}}` template).
 - Keep the neutral, terse documentation voice; the prose docs avoid em dashes.
+- **Commits must follow [Conventional Commits](https://www.conventionalcommits.org)** (`feat:`, `fix:`, `chore:`, `docs:`, etc.). release-please drives versioning + the changelog + GitHub releases for `@liebstoeckel/buncus-server` from these prefixes (see `release-please-config.json`), and only acts on conventional commits — an unprefixed commit is invisible to it. Use `feat:`/`fix:` for anything user-facing, and `feat!:` or a `BREAKING CHANGE:` footer for breaking changes.
 
 ## Do not commit
 
