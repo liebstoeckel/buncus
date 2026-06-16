@@ -55,7 +55,9 @@ Embed on any page:
 A Helm chart lives in [`charts/buncus`](../../charts/buncus). It is published as an OCI
 artifact (`oci://ghcr.io/liebstoeckel/charts/buncus`), versioned in lock-step with the image,
 and exposes the env table below as values (allowlists as YAML lists, secrets by reference or
-inline). See the [chart README](../../charts/buncus/README.md) for details.
+inline). As with the binary, pin an exact chart version (`helm ... --version <x.y.z>`); a
+pinned chart version resolves to the matching image. See the
+[chart README](../../charts/buncus/README.md) for details.
 
 ## Environment
 
