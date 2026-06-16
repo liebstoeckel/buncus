@@ -149,7 +149,7 @@ An internal security review was conducted; **all findings are remediated** (regr
 
 ## 7. Testing strategy
 
-All tiers run against `@liebstoeckel/buncus-mock-github` — **no GitHub needed**. 82 tests / 12 files.
+All tiers run against `@liebstoeckel/buncus-mock-github` — **no GitHub needed**.
 
 - **unit** — crypto (round-trip, TTL, tamper), `bun:sqlite` cache (intolerance, created_at), loader params/mapping/consent.
 - **integration** — proxied API + server routes vs the in-process mock (OAuth dance; create→comment→reply→react→read-back; anonymous app-token path; 404/403).

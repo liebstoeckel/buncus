@@ -40,7 +40,7 @@ buncus/
 ```sh
 bun install
 bun run --cwd packages/buncus compile     # -> packages/buncus/dist/buncus (single binary)
-bun test packages                         # 82 tests, all offline via @liebstoeckel/buncus-mock-github
+bun test packages                         # full suite, all offline via @liebstoeckel/buncus-mock-github
 bun run --cwd packages/buncus demo        # live local demo (mock + binary + host page)
 ```
 
