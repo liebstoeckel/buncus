@@ -12,7 +12,7 @@ function Body({ html }: { html: string }) {
 
 // Only allow http(s) in href/src sinks (React doesn't block `javascript:` in
 // href). Real GitHub URLs always qualify; this guards an unvalidated sink.
-function httpsOnly(url: string | undefined): string | undefined {
+export function httpsOnly(url: string | undefined): string | undefined {
   return url && /^https?:\/\//.test(url) ? url : undefined;
 }
 

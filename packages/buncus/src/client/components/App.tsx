@@ -5,7 +5,7 @@ import type { WidgetConfig } from "../config.ts";
 import { documentLang, makeT } from "../i18n.ts";
 import { emit } from "../messages.ts";
 import { type CommentOrder, useFrontBackDiscussion } from "../useFrontBackDiscussion.ts";
-import { Comment } from "./Comment.tsx";
+import { Comment, httpsOnly } from "./Comment.tsx";
 import { CommentBox } from "./CommentBox.tsx";
 import { Reactions } from "./Reactions.tsx";
 
@@ -171,7 +171,7 @@ export function App({ config }: { config: WidgetConfig }) {
             </div>
           )}
           {discussion && (
-            <a className="bc-header__link" href={discussion.url} target="_top" rel="noopener noreferrer">
+            <a className="bc-header__link" href={httpsOnly(discussion.url)} target="_top" rel="noopener noreferrer">
               {t.viewOnGitHub}
             </a>
           )}

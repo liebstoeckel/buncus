@@ -55,6 +55,24 @@ function parseEnv(): Config {
     throw new Error(`Config error: ${name} is required. Set it, or run with BUNCUS_MOCK=1 for local/testing.`);
   };
 
+  // Parse a JSON-array env var (allowlists) with a friendly error instead of an
+  // opaque SyntaxError if it is malformed. Fails closed: a broken allowlist
+  // stops boot rather than silently widening or narrowing access.
+  const jsonArray = (name: string): string[] => {
+    const raw = process.env[name];
+    if (!raw) return [];
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      throw new Error(`Config error: ${name} must be a JSON array of strings, e.g. ${name}='["https://your.site"]'.`);
+    }
+    if (!Array.isArray(parsed) || parsed.some((v) => typeof v !== "string")) {
+      throw new Error(`Config error: ${name} must be a JSON array of strings.`);
+    }
+    return parsed;
+  };
+
   const encryptionPassword = required("ENCRYPTION_PASSWORD");
   if (!mock) {
     if (encryptionPassword === DEV_PASSWORD) {
@@ -91,9 +109,9 @@ function parseEnv(): Config {
     privateKey,
     encryptionPassword,
     dbPath: process.env.BUNCUS_DB ?? ":memory:",
-    origins: JSON.parse(process.env.ORIGINS ?? "[]"),
-    originsRegex: JSON.parse(process.env.ORIGINS_REGEX ?? "[]"),
-    themeOrigins: JSON.parse(process.env.THEME_ORIGINS ?? "[]"),
+    origins: jsonArray("ORIGINS"),
+    originsRegex: jsonArray("ORIGINS_REGEX"),
+    themeOrigins: jsonArray("THEME_ORIGINS"),
     sessionTtlMs: Number(process.env.SESSION_TTL_DAYS ?? 30) * 24 * 60 * 60 * 1000,
     webhookSecret: process.env.GITHUB_WEBHOOK_SECRET ?? "",
     mock,
@@ -155,7 +173,10 @@ export function isAllowedOrigin(origin: string, cfg: Config): boolean {
   if (cfg.origins.includes(origin)) return true;
   return cfg.originsRegex.some((re) => {
     try {
-      return new RegExp(re).test(origin);
+      // Anchor to match the WHOLE origin, not a substring: an unanchored pattern
+      // like "https://app\\.example\\.com" would otherwise also match
+      // "https://app.example.com.attacker.tld" and similar suffixes.
+      return new RegExp(`^(?:${re})$`).test(origin);
     } catch {
       return false;
     }

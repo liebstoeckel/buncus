@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { generateKeyPairSync } from "node:crypto";
 import { createMockGitHub, type MockGitHubServer } from "@liebstoeckel/buncus-mock-github";
-import { type Config, setConfig } from "../src/config.ts";
+import { type Config, isAllowedOrigin, setConfig } from "../src/config.ts";
 import { createContext } from "../src/context.ts";
 import { handleApi } from "../src/routes/api.ts";
 import { createServer } from "../src/server.ts";
@@ -69,6 +69,22 @@ describe("C1 — OAuth redirect_uri allowlist", () => {
     const final = new URL(cb!.headers.get("location")!);
     expect(final.searchParams.get("buncus")).toBeNull();
     expect(new URLSearchParams(final.hash.replace(/^#/, "")).get("buncus")).toBeTruthy();
+  });
+});
+
+describe("ORIGINS_REGEX is anchored (no substring/suffix spoofing)", () => {
+  // A natural, intended-exact pattern. It must not allow attacker suffixes.
+  const cfg = {
+    publicUrl: PUBLIC,
+    origins: [],
+    originsRegex: ["https://app\\.example\\.com"],
+  } as unknown as Config;
+
+  test("matches the exact origin", () => {
+    expect(isAllowedOrigin("https://app.example.com", cfg)).toBe(true);
+  });
+  test("rejects an origin that merely contains the pattern (suffix spoof)", () => {
+    expect(isAllowedOrigin("https://app.example.com.attacker.tld", cfg)).toBe(false);
   });
 });
 
