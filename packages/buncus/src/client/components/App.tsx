@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactionContent } from "../../github/graphql.ts";
+import { resolveThemeHref } from "../../theme.ts";
 import { type CustomError, createDiscussion, postComment, postReply, react } from "../api.ts";
 import type { WidgetConfig } from "../config.ts";
 import { documentLang, makeT } from "../i18n.ts";
@@ -25,7 +26,6 @@ export function App({ config }: { config: WidgetConfig }) {
       return "*";
     }
   }, [config.origin]);
-  const BUILTIN_THEMES = ["light", "dark", "preferred_color_scheme"];
 
   // Forward fatal load errors to the parent page (as the old single-fetch path
   // did): the loader clears a stale session on "Bad credentials" and warns on
@@ -58,8 +58,12 @@ export function App({ config }: { config: WidgetConfig }) {
     emit({ discussion: metadata, viewer }, parentOrigin);
   }, [config.emitMetadata, parentOrigin, discussion, viewer, d.totalCommentCount, d.totalReplyCount]);
 
-  // Parent-driven theme swap (M3): require a matching, known parent origin and
-  // restrict the value to built-in names or same-origin paths (no external CSS).
+  // Parent-driven theme swap (M3): require a matching, known parent origin, then
+  // resolve the value through the same allowlist the server uses at load time
+  // (shared `resolveThemeHref`). Built-in names and same-origin paths apply;
+  // external URLs apply only if their origin is in THEME_ORIGINS, read from the
+  // server-rendered `data-theme-origins` on the theme link. A rejected value is
+  // ignored, keeping the current theme.
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       if (parentOrigin === "*" || e.origin !== parentOrigin) return;
@@ -67,13 +71,23 @@ export function App({ config }: { config: WidgetConfig }) {
       if (!theme || typeof theme !== "string") return;
       const link = document.getElementById("buncus-theme") as HTMLLinkElement | null;
       if (!link) return;
-      if (BUILTIN_THEMES.includes(theme)) link.href = `/themes/${theme}.css`;
-      else if (theme.startsWith("/") && !theme.startsWith("//")) link.href = theme;
-      // external/unknown themes are ignored
+      let themeOrigins: string[] = [];
+      try {
+        themeOrigins = JSON.parse(link.dataset.themeOrigins ?? "[]");
+      } catch {
+        /* malformed list: treat as empty allowlist (fail-closed) */
+      }
+      const href = resolveThemeHref(theme, themeOrigins);
+      if (!href) return; // unknown name / disallowed external: ignore, keep current
+      // External stylesheets need crossorigin to satisfy the widget CSP and to
+      // mirror the attribute the server sets at load; clear it for built-ins/paths.
+      if (/^https?:\/\//.test(href)) link.crossOrigin = "anonymous";
+      else link.removeAttribute("crossorigin");
+      link.href = href;
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [parentOrigin, BUILTIN_THEMES.includes]);
+  }, [parentOrigin]);
 
   const signIn = useCallback(() => {
     const url = `/api/oauth/authorize?redirect_uri=${encodeURIComponent(config.origin)}`;

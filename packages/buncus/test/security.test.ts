@@ -6,6 +6,7 @@ import { type Config, isAllowedOrigin, setConfig } from "../src/config.ts";
 import { createContext } from "../src/context.ts";
 import { handleApi } from "../src/routes/api.ts";
 import { createServer } from "../src/server.ts";
+import { resolveThemeHref } from "../src/theme.ts";
 
 let mock: MockGitHubServer;
 let privateKey: string;
@@ -178,5 +179,54 @@ describe("M4 — widget CSP + theme allowlist", () => {
     const html = await res.text();
     expect(html).toContain("/themes/preferred_color_scheme.css");
     expect(html).not.toContain("evil.example");
+  });
+
+  test("an allowlisted external theme URL is applied, with crossorigin", async () => {
+    configure({ themeOrigins: ["https://cdn.example"] });
+    const app = createServer();
+    const res = await app.fetch(
+      new Request(`${PUBLIC}/widget?theme=${encodeURIComponent("https://cdn.example/brand.css")}`),
+    );
+    const html = await res.text();
+    expect(html).toContain('href="https://cdn.example/brand.css"');
+    expect(html).toContain('crossorigin="anonymous"');
+    expect(res.headers.get("content-security-policy")).toContain("style-src 'self' https://cdn.example");
+  });
+
+  test("the theme link exposes the allowlist to the client via data-theme-origins", async () => {
+    configure({ themeOrigins: ["https://cdn.example"] });
+    const app = createServer();
+    const res = await app.fetch(new Request(`${PUBLIC}/widget?theme=dark`));
+    const html = await res.text();
+    // JSON array, HTML-escaped (" -> &quot;), so the runtime swap can read the same gate.
+    expect(html).toContain(`data-theme-origins="${'["https://cdn.example"]'.replace(/"/g, "&quot;")}"`);
+  });
+});
+
+// Load-time and runtime both gate external themes through this one helper (M4),
+// so the two paths can't drift. The runtime side (App.tsx) reads the same
+// allowlist from `data-theme-origins`; here we exercise the shared resolver.
+describe("M4 — resolveThemeHref (shared load-time + runtime gate)", () => {
+  const allow = ["https://cdn.example"];
+
+  test("built-in names resolve to the bundled stylesheet", () => {
+    expect(resolveThemeHref("dark", [])).toBe("/themes/dark.css");
+    expect(resolveThemeHref("preferred_color_scheme", [])).toBe("/themes/preferred_color_scheme.css");
+  });
+
+  test("same-origin paths pass through; protocol-relative is rejected", () => {
+    expect(resolveThemeHref("/themes/custom.css", [])).toBe("/themes/custom.css");
+    expect(resolveThemeHref("//evil.example/x.css", [])).toBeNull();
+  });
+
+  test("an external URL is accepted only when its origin is allowlisted", () => {
+    expect(resolveThemeHref("https://cdn.example/brand.css", allow)).toBe("https://cdn.example/brand.css");
+    expect(resolveThemeHref("https://evil.example/x.css", allow)).toBeNull();
+    expect(resolveThemeHref("https://cdn.example/brand.css", [])).toBeNull();
+  });
+
+  test("unknown / malformed values are rejected (caller keeps the current theme)", () => {
+    expect(resolveThemeHref("not-a-theme", allow)).toBeNull();
+    expect(resolveThemeHref("https://", allow)).toBeNull();
   });
 });

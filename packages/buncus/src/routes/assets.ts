@@ -9,6 +9,7 @@ import preferredCss from "../../assets/themes/preferred_color_scheme.css" with {
 import widgetCss from "../../assets/widget.css" with { type: "file" };
 import loaderJs from "../../dist/buncus.js" with { type: "file" };
 import widgetJs from "../../dist/widget.js" with { type: "file" };
+import { BUILTIN_THEMES } from "../theme.ts";
 
 const CACHE = "public, max-age=0, stale-while-revalidate=604800";
 
@@ -27,7 +28,9 @@ const assets: Record<string, Asset> = {
   "/themes/preferred_color_scheme.css": { path: preferredCss, type: "text/css; charset=utf-8" },
 };
 
-export const BUILTIN_THEMES = ["light", "dark", "preferred_color_scheme"] as const;
+// Re-exported from the client-safe `src/theme.ts` (the single source of truth);
+// kept here so existing importers of `routes/assets.ts` keep working.
+export { BUILTIN_THEMES };
 
 export async function serveAsset(pathname: string): Promise<Response | null> {
   const asset = assets[pathname];
