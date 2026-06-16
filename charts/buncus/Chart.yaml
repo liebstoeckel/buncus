@@ -9,8 +9,10 @@ maintainers:
   - name: Leon Kaucher
     email: contact@liebstoeckel.app
 kubeVersion: ">=1.23.0-0"
-# `version` (the chart) and `appVersion` (the buncus image) are bumped together
-# by release-please on each release, so a pinned chart version implies an exact
-# image version. The annotations below are how release-please finds these lines.
-version: 0.1.1 # x-release-please-version
-appVersion: "0.1.1" # x-release-please-version
+# These are a development baseline and may lag the latest release. The published
+# chart is always pinned to the release tag: the publish-chart workflow runs
+# `helm package --version <tag> --app-version <tag>`, so pulling a given chart
+# version resolves to the matching image. (release-please cannot bump this file
+# automatically: its extra-files updater rejects paths outside the package dir.)
+version: 0.1.2
+appVersion: "0.1.2"

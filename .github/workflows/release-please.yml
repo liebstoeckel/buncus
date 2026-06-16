@@ -174,9 +174,9 @@ jobs:
   # keyless-cosign-sign the pushed manifest digest. The chart version and
   # appVersion are set from the release tag at package time, so the published
   # chart version always equals the image version for this tag regardless of
-  # what charts/buncus/Chart.yaml currently holds. release-please also bumps that
-  # file in lock-step (extra-files in release-please-config.json) so a source
-  # checkout matches, but the publish does not depend on it.
+  # what charts/buncus/Chart.yaml currently holds (that file is a development
+  # baseline; release-please cannot bump it because its extra-files updater
+  # rejects paths outside the package directory).
   publish-chart:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'

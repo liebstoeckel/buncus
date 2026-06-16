@@ -7,13 +7,7 @@
   "packages": {
     "packages/buncus": {
       "package-name": "@liebstoeckel/buncus-server",
-      "initial-version": "0.1.0",
-      "extra-files": [
-        {
-          "type": "generic",
-          "path": "../../charts/buncus/Chart.yaml"
-        }
-      ]
+      "initial-version": "0.1.0"
     }
   }
 }
