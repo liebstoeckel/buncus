@@ -24,12 +24,23 @@ hosting, proxy, and UI layer in front of them.
 | [`packages/buncus/MIGRATION.md`](./packages/buncus/MIGRATION.md) | Migrating an existing giscus embed to buncus (deviations, attribute map, theme map). |
 | [`packages/mock-github/README.md`](./packages/mock-github/README.md) · [`SCHEMAS.md`](./packages/mock-github/SCHEMAS.md) | The GitHub mock used to build and test offline, and how its shapes are grounded in GitHub's API. |
 
+## Distribution
+
+buncus ships as three artifacts, cut together on each release so a pinned version of one
+resolves to the matching others. Being pre-1.0, pin an exact version of whichever you use.
+
+| Artifact | Where | Notes |
+|---|---|---|
+| **Server** (`@liebstoeckel/buncus-server`) | [`packages/buncus`](./packages/buncus/README.md) · [GitHub releases](https://github.com/liebstoeckel/buncus/releases) | The Bun server, embed loader, and React widget. Standalone single-file binaries for each platform are attached to every release, checksummed and cosign-signed. |
+| **Container image** | [`ghcr.io/liebstoeckel/buncus`](https://github.com/liebstoeckel/buncus/pkgs/container/buncus) | Multi-arch (amd64/arm64), distroless, cosign-signed, with SBOM and SLSA provenance. |
+| **Helm chart** | [`oci://ghcr.io/liebstoeckel/charts/buncus`](./charts/buncus/README.md) | Kubernetes deploy: secrets by reference, allowlists as YAML lists, cosign-signed. |
+
 ## Workspace layout
 
 ```
 buncus/
 ├── ARCHITECTURE.md · README.md
-├── giscus-eval/                 reference clone of giscus/giscus (gitignored)
+├── charts/buncus/               Helm chart for Kubernetes deployment
 └── packages/
     ├── buncus/                  the server, loader, widget, themes, demo, tests
     └── mock-github/             stateful GitHub mock (OAuth/REST/GraphQL), no GitHub needed
