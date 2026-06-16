@@ -25,7 +25,7 @@ Stack: **Bun ≥ 1.3 · React 19 · `bun:sqlite` · native `crypto.subtle` · `n
 
 Three actors, two trust boundaries (the iframe, and the buncus↔GitHub hop).
 
-![buncus system overview: the embedding page, the buncus binary, and GitHub, with the iframe and the server-to-GitHub trust boundaries marked. The browser never talks to GitHub directly.](./architecture-system-overview.drawio.png)
+![buncus system overview: the embedding page, the buncus binary, and GitHub, with the iframe and the server-to-GitHub trust boundaries marked. The browser never talks to GitHub directly.](./doc/architecture-system-overview.drawio.png)
 
 **Two halves over `postMessage`:** the **loader** (runs on the host page) and the
 **widget** (React app inside the iframe). They communicate only via
