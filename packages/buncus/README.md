@@ -50,6 +50,13 @@ Embed on any page:
 
 (You need a GitHub App. See [`MIGRATION.md` §Step 1](./MIGRATION.md#step-1--register-a-github-app).)
 
+### Deploy on Kubernetes
+
+A Helm chart lives in [`charts/buncus`](../../charts/buncus). It is published as an OCI
+artifact (`oci://ghcr.io/liebstoeckel/charts/buncus`), versioned in lock-step with the image,
+and exposes the env table below as values (allowlists as YAML lists, secrets by reference or
+inline). See the [chart README](../../charts/buncus/README.md) for details.
+
 ## Environment
 
 | Var | Required | Default | Meaning |

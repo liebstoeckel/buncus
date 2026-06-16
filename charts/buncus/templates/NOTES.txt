@@ -1,0 +1,26 @@
+buncus {{ .Chart.AppVersion }} is deploying as {{ include "buncus.fullname" . }}.
+
+Image:   {{ include "buncus.image" . }}
+Service: {{ include "buncus.fullname" . }}.{{ .Release.Namespace }}.svc:{{ .Values.service.port }} ({{ .Values.service.type }})
+Health:  GET /healthz on container port {{ .Values.config.port }}
+
+{{- if eq (include "buncus.hasSecret" .) "true" }}
+Secrets: loaded via envFrom from {{ include "buncus.secretName" . }}.
+{{- else }}
+WARNING: no secrets are configured. buncus requires GITHUB_APP_ID, GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET, GITHUB_PRIVATE_KEY, and ENCRYPTION_PASSWORD and will refuse to
+  boot without them (unless config.mock=true, for local testing only). Set
+  secrets.existingSecret to a pre-existing Secret, or fill in secrets.* inline.
+{{- end }}
+
+{{- if and (not .Values.config.mock) (not .Values.config.publicUrl) }}
+
+NOTE: config.publicUrl (BUNCUS_PUBLIC_URL) is unset. Set it to buncus' own public
+  base URL so the OAuth callback and same-origin checks resolve correctly.
+{{- end }}
+
+{{- if not .Values.ingress.enabled }}
+
+No Ingress was created (ingress.enabled=false). Reach buncus through the Service above,
+or your own router/ingress.
+{{- end }}

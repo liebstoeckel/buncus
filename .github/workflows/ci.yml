@@ -68,3 +68,24 @@ jobs:
 
       - name: Run tests
         run: bun test packages
+
+  helm:
+    name: Helm chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      # helm is preinstalled on the ubuntu-latest runner image.
+      - name: Helm lint
+        run: |
+          helm lint charts/buncus --strict
+          helm lint charts/buncus --strict -f charts/buncus/ci/test-values.yaml
+
+      # Render hermetically (no cluster access) in every supported mode so a
+      # broken template fails the gate. --validate is intentionally omitted: it
+      # would need a live cluster.
+      - name: Helm template
+        run: |
+          helm template buncus charts/buncus > /dev/null
+          helm template buncus charts/buncus -f charts/buncus/ci/test-values.yaml > /dev/null
+          helm template buncus charts/buncus -f charts/buncus/ci/existing-secret-values.yaml > /dev/null

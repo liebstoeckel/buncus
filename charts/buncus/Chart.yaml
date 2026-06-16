@@ -1,0 +1,16 @@
+apiVersion: v2
+name: buncus
+description: Self-hosted, themeable host for GitHub Discussions comments. A Bun-native giscus reimplementation.
+type: application
+home: https://github.com/liebstoeckel/buncus
+sources:
+  - https://github.com/liebstoeckel/buncus
+maintainers:
+  - name: Leon Kaucher
+    email: contact@liebstoeckel.app
+kubeVersion: ">=1.23.0-0"
+# `version` (the chart) and `appVersion` (the buncus image) are bumped together
+# by release-please on each release, so a pinned chart version implies an exact
+# image version. The annotations below are how release-please finds these lines.
+version: 0.1.1 # x-release-please-version
+appVersion: "0.1.1" # x-release-please-version

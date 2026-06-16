@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "buncus chart values",
+  "type": "object",
+  "properties": {
+    "replicaCount": { "type": "integer", "minimum": 0 },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "tag": { "type": "string" },
+        "digest": { "type": "string" },
+        "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+      },
+      "required": ["repository"],
+      "additionalProperties": true
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "publicUrl": { "type": "string" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "db": { "type": "string" },
+        "apiHost": { "type": "string" },
+        "oauthHost": { "type": "string" },
+        "sessionTtlDays": { "type": ["string", "integer"] },
+        "mock": { "type": "boolean" },
+        "origins": { "type": "array", "items": { "type": "string" } },
+        "originsRegex": { "type": "array", "items": { "type": "string" } },
+        "themeOrigins": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "secrets": {
+      "type": "object",
+      "properties": {
+        "existingSecret": { "type": "string" },
+        "githubAppId": { "type": "string" },
+        "githubClientId": { "type": "string" },
+        "githubClientSecret": { "type": "string" },
+        "githubPrivateKey": { "type": "string" },
+        "githubWebhookSecret": { "type": "string" },
+        "encryptionPassword": {
+          "comment": "Empty means unset (use existingSecret); when inlined it must be at least 16 chars.",
+          "anyOf": [{ "const": "" }, { "type": "string", "minLength": 16 }]
+        }
+      },
+      "additionalProperties": true
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+      },
+      "additionalProperties": true
+    },
+    "persistence": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "path": { "type": "string", "minLength": 1 },
+        "size": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

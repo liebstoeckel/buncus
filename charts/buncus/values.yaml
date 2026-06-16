@@ -1,0 +1,143 @@
+# Default values for the buncus chart.
+# Every value maps to a buncus runtime env var (see README.md for the full table).
+# Empty strings and empty lists mean "unset", so buncus' own defaults apply.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/liebstoeckel/buncus
+  # tag defaults to the chart's appVersion (the released image version) when empty,
+  # so a pinned chart version implies an exact image version.
+  tag: ""
+  # Pin by digest instead of tag when set (takes precedence over tag).
+  digest: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# Non-secret runtime configuration. Each field maps to one env var; blanks are omitted.
+config:
+  # BUNCUS_PUBLIC_URL: buncus' own public base URL (OAuth callback + same-origin check).
+  publicUrl: ""
+  # PORT: listen port. Also the container port and the probe target.
+  port: 4600
+  # BUNCUS_DB: SQLite path for the installation-token cache. ":memory:" keeps it
+  # in RAM (the cache is re-minted on a miss, so this is safe). Ignored when
+  # persistence.enabled is true, which points BUNCUS_DB at the mounted volume.
+  db: ":memory:"
+  # GITHUB_API_HOST / GITHUB_OAUTH_HOST: override for GHES or a mock GitHub.
+  apiHost: ""
+  oauthHost: ""
+  # SESSION_TTL_DAYS: session lifetime in days.
+  sessionTtlDays: ""
+  # BUNCUS_MOCK: "1"-equivalent. Relaxes secret validation and uses mock defaults.
+  # Local/testing only; never enable in production.
+  mock: false
+  # Allowlists. Given as native YAML lists here and serialized to the JSON-array
+  # strings buncus expects, so you never hand-write JSON.
+  # ORIGINS: embedding origins. Gates the OAuth redirect, the API, and framing.
+  # Empty means same-origin only.
+  origins: []
+  # ORIGINS_REGEX: origin regexes, same purpose as origins.
+  originsRegex: []
+  # THEME_ORIGINS: origins allowed to serve external custom theme CSS.
+  themeOrigins: []
+
+# Secrets. Two modes:
+#   - existingSecret set: the named Secret is consumed via envFrom. Nothing
+#     secret is rendered into the release. Use this with External Secrets
+#     Operator or any out-of-band Secret. Its keys must be the literal env names
+#     (GITHUB_APP_ID, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_PRIVATE_KEY,
+#     ENCRYPTION_PASSWORD, and optionally GITHUB_WEBHOOK_SECRET).
+#   - existingSecret empty: a Secret is created from the inline values below
+#     (only the non-empty ones). Convenient for trying buncus out; keep real
+#     secrets out of values in production.
+secrets:
+  existingSecret: ""
+  githubAppId: ""
+  githubClientId: ""
+  githubClientSecret: ""
+  githubPrivateKey: "" # PEM (RS256). \n-escaped values are accepted.
+  encryptionPassword: "" # at least 16 chars; not the known dev default.
+  githubWebhookSecret: "" # optional; enables /api/webhook HMAC verification.
+
+service:
+  type: ClusterIP
+  port: 4600
+  annotations: {}
+
+# Optional Ingress. Disabled by default: front buncus with your own router
+# (e.g. Traefik) and use the Service directly.
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: comments.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Persist the SQLite token cache across restarts. Off by default (the cache is
+# re-mintable, so ":memory:" is safe). When enabled, BUNCUS_DB points at `path`
+# and the parent directory is the PVC mount; fsGroup 65532 keeps it writable by
+# the nonroot user.
+persistence:
+  enabled: false
+  path: /data/buncus.sqlite
+  existingClaim: ""
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  annotations: {}
+
+# Mount an emptyDir at /tmp so the default read-only root filesystem still has a
+# writable scratch dir. Disable if you set readOnlyRootFilesystem: false.
+tmpDir:
+  enabled: true
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 2
+  periodSeconds: 5
+
+# Defaults match the distroless :nonroot runtime (uid/gid 65532).
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
