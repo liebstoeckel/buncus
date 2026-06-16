@@ -1,6 +1,6 @@
 {
   "name": "@liebstoeckel/buncus-server",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "A single-binary, themeable, self-hosted host for GitHub Discussions comments. A Bun-native giscus reimplementation.",
   "keywords": [
