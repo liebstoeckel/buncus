@@ -5,6 +5,10 @@ dist/
 .DS_Store
 .idea/
 
+# GitHub App private keys — never commit. Belong in env/secret stores only.
+*.pem
+*.key
+
 # Claude Code session state and git worktrees (.claude/worktrees/*).
 .claude/
 
