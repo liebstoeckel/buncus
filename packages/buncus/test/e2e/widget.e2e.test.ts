@@ -25,6 +25,7 @@ let browser: Browser;
 let buncusServer: ReturnType<typeof Bun.serve>;
 let hostServer: ReturnType<typeof Bun.serve>;
 let hostOrigin: string;
+let buncusOrigin: string;
 let repoId: string;
 let categoryId: string;
 
@@ -62,10 +63,12 @@ d("buncus widget e2e (headless chromium)", () => {
     });
     const app = createServer();
     buncusServer = Bun.serve({ port: 0, fetch: app.fetch });
-    const buncusOrigin = `http://localhost:${buncusServer.port}`;
+    buncusOrigin = `http://localhost:${buncusServer.port}`;
     // Re-set with the real ports: publicUrl (OAuth callback) + the host origin
-    // on the OAuth/framing allowlist (C1/M6).
-    setConfig({ publicUrl: buncusOrigin });
+    // on the OAuth/framing allowlist (C1/M6). Allowlist buncus' own origin as a
+    // theme origin so the runtime-swap test can target an external-URL form
+    // (buncus serves /themes/dark.css there) through the THEME_ORIGINS gate.
+    setConfig({ publicUrl: buncusOrigin, themeOrigins: [buncusOrigin] });
 
     // 3. Host page server (embeds the loader; serves the page on every path so
     //    the OAuth ?buncus= return lands here too).
@@ -222,6 +225,74 @@ d("buncus widget e2e (headless chromium)", () => {
       // design; the themed colour shows on .bc-root text).
       const color = await frame.locator(".bc-root").evaluate((el) => getComputedStyle(el).color);
       expect(color).toBe("rgb(230, 237, 243)"); // --bc-fg dark (#e6edf3)
+    } finally {
+      await ctx.close();
+    }
+  }, 45_000);
+
+  // Post { buncus: { setConfig: { theme } } } from the host page to the iframe,
+  // exactly as a parent page following its own light/dark toggle would.
+  async function postTheme(page: Page, theme: string) {
+    await page.evaluate(
+      ({ theme, target }) => {
+        const iframe = document.querySelector("iframe.buncus-frame") as HTMLIFrameElement;
+        iframe.contentWindow!.postMessage({ buncus: { setConfig: { theme } } }, target);
+      },
+      { theme, target: buncusOrigin },
+    );
+  }
+
+  async function themeHref(frame: ReturnType<Page["frameLocator"]>): Promise<string | null> {
+    return frame.locator("#buncus-theme").getAttribute("href");
+  }
+
+  async function waitForThemeHref(frame: ReturnType<Page["frameLocator"]>, expected: string) {
+    for (let i = 0; i < 50; i++) {
+      if ((await themeHref(frame)) === expected) return;
+      await Bun.sleep(100);
+    }
+    expect(await themeHref(frame)).toBe(expected); // fail with a useful diff
+  }
+
+  test("runtime theme swap: a built-in name re-themes live", async () => {
+    const { ctx, page } = await fresh();
+    try {
+      await page.goto(`${hostOrigin}/?theme=light`);
+      await page.locator(".buncus-consent__load").click();
+      const frame = page.frameLocator("iframe.buncus-frame");
+      await frame.locator(".bc-root").waitFor({ state: "visible" });
+      expect(await themeHref(frame)).toBe("/themes/light.css");
+
+      await postTheme(page, "dark");
+      await waitForThemeHref(frame, "/themes/dark.css");
+      const color = await frame.locator(".bc-root").evaluate((el) => getComputedStyle(el).color);
+      expect(color).toBe("rgb(230, 237, 243)"); // dark --bc-fg actually applied
+    } finally {
+      await ctx.close();
+    }
+  }, 45_000);
+
+  test("runtime theme swap: an allowlisted external URL is applied; a non-allowlisted one is ignored", async () => {
+    const { ctx, page } = await fresh();
+    try {
+      await page.goto(`${hostOrigin}/?theme=light`);
+      await page.locator(".buncus-consent__load").click();
+      const frame = page.frameLocator("iframe.buncus-frame");
+      await frame.locator(".bc-root").waitFor({ state: "visible" });
+      expect(await themeHref(frame)).toBe("/themes/light.css");
+
+      // Off-allowlist external URL: ignored, theme unchanged (fail-closed).
+      await postTheme(page, "https://evil.example/x.css");
+      await Bun.sleep(300);
+      expect(await themeHref(frame)).toBe("/themes/light.css");
+
+      // External URL whose origin IS in THEME_ORIGINS (buncusOrigin): applied.
+      const allowed = `${buncusOrigin}/themes/dark.css`;
+      await postTheme(page, allowed);
+      await waitForThemeHref(frame, allowed);
+      expect(await frame.locator("#buncus-theme").getAttribute("crossorigin")).toBe("anonymous");
+      const color = await frame.locator(".bc-root").evaluate((el) => getComputedStyle(el).color);
+      expect(color).toBe("rgb(230, 237, 243)"); // the external dark theme actually loaded + applied
     } finally {
       await ctx.close();
     }

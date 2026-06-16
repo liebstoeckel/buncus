@@ -4,27 +4,9 @@
 
 import { isRtl, resolveStrings } from "../client/i18n.ts";
 import { type Config, getConfig, isAllowedOrigin } from "../config.ts";
-import { BUILTIN_THEMES } from "./assets.ts";
+import { resolveThemeHref } from "../theme.ts";
 
-/**
- * Resolve the theme stylesheet href (M4):
- *  - a built-in name        -> /themes/<name>.css
- *  - a same-origin "/path"  -> allowed as-is
- *  - an external http(s) URL-> only if its origin is in cfg.themeOrigins
- *  - anything else          -> the safe default
- */
-function resolveThemeHref(theme: string, cfg: Config): string {
-  if (BUILTIN_THEMES.includes(theme as any)) return `/themes/${theme}.css`;
-  if (theme.startsWith("/") && !theme.startsWith("//")) return theme;
-  if (/^https?:\/\//.test(theme)) {
-    try {
-      if (cfg.themeOrigins.includes(new URL(theme).origin)) return theme;
-    } catch {
-      /* fall through */
-    }
-  }
-  return "/themes/preferred_color_scheme.css";
-}
+const DEFAULT_THEME_HREF = "/themes/preferred_color_scheme.css";
 
 function escapeAttr(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
@@ -47,7 +29,8 @@ export function renderWidget(url: URL, lang?: string): Response {
   const cfg = getConfig();
   const theme = url.searchParams.get("theme") ?? "preferred_color_scheme";
   const originParam = url.searchParams.get("origin") ?? "";
-  const themeHref = resolveThemeHref(theme, cfg);
+  // M4: a rejected value (null) falls back to the safe default at load time.
+  const themeHref = resolveThemeHref(theme, cfg.themeOrigins) ?? DEFAULT_THEME_HREF;
   const external = /^https?:\/\//.test(themeHref);
   // Locale is presentational: it picks the UI strings + text direction. The
   // client reads the resolved <html lang>; the shell shows a matching loading
@@ -76,7 +59,7 @@ export function renderWidget(url: URL, lang?: string): Response {
   <meta name="color-scheme" content="light dark">
   <title>Comments</title>
   <link rel="stylesheet" href="/widget.css">
-  <link rel="stylesheet" id="buncus-theme" href="${escapeAttr(themeHref)}"${external ? ' crossorigin="anonymous"' : ""}>
+  <link rel="stylesheet" id="buncus-theme" href="${escapeAttr(themeHref)}" data-theme-origins="${escapeAttr(JSON.stringify(cfg.themeOrigins))}"${external ? ' crossorigin="anonymous"' : ""}>
 </head>
 <body>
   <div id="buncus-root"><div class="bc-status">${escapeAttr(t.loadingComments)}</div></div>
