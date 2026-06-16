@@ -9,6 +9,9 @@ dist/
 *.pem
 *.key
 
+# Live demo secrets (real GitHub creds) — never commit. .example is tracked.
+.env.demo.local
+
 # Claude Code session state and git worktrees (.claude/worktrees/*).
 .claude/
 

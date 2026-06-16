@@ -38,6 +38,7 @@
     "compile": "bun run build:assets && bun build --compile --outfile dist/buncus src/server.ts",
     "start": "bun run src/server.ts",
     "demo": "bun run scripts/demo.ts",
+    "demo:live": "bun run compile && bun run scripts/demo-live.ts",
     "test": "bun test",
     "test:e2e": "bun test test/e2e"
   },

@@ -48,14 +48,14 @@
     <!-- The buncus embed. Drop-in compatible with giscus' data-* attributes. -->
     <script
       src="{{origin}}/buncus.js"
-      data-repo="acme/docs"
+      data-repo="{{repo}}"
       data-repo-id="{{repoId}}"
-      data-category="General"
+      data-category="{{category}}"
       data-category-id="{{categoryId}}"
-      data-mapping="specific"
-      data-term="guide/start"
+      data-mapping="{{mapping}}"
+      data-term="{{term}}"
       data-theme="{{theme}}"
-      data-consent="required"
+      data-consent="{{consent}}"
       data-privacy-url="/privacy"
       crossorigin="anonymous"
       async
