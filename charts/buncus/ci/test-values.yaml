@@ -1,0 +1,40 @@
+# Sample values used by `helm lint`/`helm template` in CI to exercise the chart
+# end to end: inline secrets, allowlists as YAML lists, persistence, and Ingress.
+config:
+  publicUrl: "https://comments.example.com"
+  sessionTtlDays: 14
+  origins:
+    - "https://docs.example.com"
+    - "https://blog.example.com"
+  originsRegex:
+    - "https://[a-z0-9-]+\\.example\\.com"
+  themeOrigins:
+    - "https://cdn.example.com"
+
+secrets:
+  githubAppId: "123456"
+  githubClientId: "Iv1.deadbeefdeadbeef"
+  githubClientSecret: "ci-only-client-secret"
+  githubPrivateKey: |
+    -----BEGIN RSA PRIVATE KEY-----
+    ci-placeholder-not-a-real-key
+    -----END RSA PRIVATE KEY-----
+  encryptionPassword: "ci-only-password-at-least-16-chars"
+  githubWebhookSecret: "ci-only-webhook-secret"
+
+persistence:
+  enabled: true
+  size: 256Mi
+
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: comments.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: comments-example-com-tls
+      hosts:
+        - comments.example.com

@@ -169,3 +169,43 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # contents: write is enough to add assets
         run: gh release upload "${{ needs.release-please.outputs.tag_name }}" packages/buncus/dist/release/* --clobber
+
+  # Package the Helm chart and push it as an OCI artifact to GHCR, then
+  # keyless-cosign-sign the pushed manifest digest. The chart's version /
+  # appVersion were bumped in lock-step with the image by release-please
+  # (extra-files in release-please-config.json), so the chart version equals the
+  # image version for this tag.
+  publish-chart:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # push the chart to ghcr.io/<owner>/charts
+      id-token: write # OIDC token for keyless cosign signing (Sigstore)
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      # helm is preinstalled on the ubuntu-latest runner image. Log it in to GHCR
+      # as an OCI registry with the built-in token (packages: write is enough).
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username "${{ github.actor }}" --password-stdin
+
+      # Package and push. The tag is vX.Y.Z; the chart version is X.Y.Z (== the
+      # bumped Chart.yaml), so the packaged file is buncus-X.Y.Z.tgz. Capture the
+      # pushed digest from helm's output and sign that immutable digest, mirroring
+      # the image's keyless-signing posture.
+      - name: Package, push, and sign chart
+        env:
+          OWNER: ${{ github.repository_owner }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          helm package charts/buncus --destination dist-chart
+          out=$(helm push "dist-chart/buncus-${version}.tgz" "oci://ghcr.io/${OWNER}/charts" 2>&1 | tee /dev/stderr)
+          digest=$(echo "$out" | awk '/[Dd]igest:/ { print $NF }')
+          test -n "$digest"
+          cosign sign --yes "ghcr.io/${OWNER}/charts/buncus@${digest}"
