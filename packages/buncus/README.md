@@ -59,6 +59,14 @@ inline). As with the binary, pin an exact chart version (`helm ... --version <x.
 pinned chart version resolves to the matching image. See the
 [chart README](../../charts/buncus/README.md) for details.
 
+The published chart is keyless-signed with cosign, like the image. Verify it before use:
+
+```sh
+cosign verify ghcr.io/liebstoeckel/charts/buncus:<x.y.z> \
+  --certificate-identity-regexp '^https://github.com/liebstoeckel/buncus/' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
 ## Environment
 
 | Var | Required | Default | Meaning |
