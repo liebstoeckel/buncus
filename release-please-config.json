@@ -11,7 +11,7 @@
       "extra-files": [
         {
           "type": "generic",
-          "path": "charts/buncus/Chart.yaml"
+          "path": "../../charts/buncus/Chart.yaml"
         }
       ]
     }
