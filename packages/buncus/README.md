@@ -66,7 +66,7 @@ Embed on any page:
 | `GITHUB_OAUTH_HOST` | | `https://github.com` | OAuth base (GHES / mock) |
 | `ORIGINS` | for cross-origin embeds | `[]` | JSON array of embedding origins. Gates the OAuth redirect, the API, and framing. Empty means same-origin only, so a cross-origin site embedding buncus must be listed here. |
 | `ORIGINS_REGEX` | | `[]` | JSON array of origin regexes (same purpose as `ORIGINS`). |
-| `THEME_ORIGINS` | | `[]` | JSON array of origins allowed to serve external custom theme CSS. |
+| `THEME_ORIGINS` | | `[]` | JSON array of origins allowed to serve external custom theme CSS. These origins also widen the widget CSP `font-src` (alongside `'self'` and `data:`), so a theme served from an allowlisted origin can load a webfont from it. The font response must send `Access-Control-Allow-Origin` for the cross-origin fetch. |
 | `SESSION_TTL_DAYS` | | `30` | Session lifetime. |
 | `GITHUB_WEBHOOK_SECRET` | |  | If set, `/api/webhook` verifies the GitHub HMAC. |
 | `BUNCUS_MOCK` | |  | `1` relaxes secret validation and uses mock defaults (local/testing only). |

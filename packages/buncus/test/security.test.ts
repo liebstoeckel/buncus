@@ -150,6 +150,25 @@ describe("M4 — widget CSP + theme allowlist", () => {
     expect(csp).toContain("frame-ancestors 'self' http://site");
   });
 
+  test("font-src is 'self' data: by default (no theme origins)", async () => {
+    configure();
+    const app = createServer();
+    const res = await app.fetch(new Request(`${PUBLIC}/widget?theme=dark`));
+    const csp = res.headers.get("content-security-policy")!;
+    expect(csp).toContain("font-src 'self' data:");
+    // No origin leaks in when THEME_ORIGINS is empty: style-src is bare 'self' too.
+    expect(csp).toContain("style-src 'self';");
+  });
+
+  test("font-src and style-src both widen to allowlisted theme origins", async () => {
+    configure({ themeOrigins: ["https://docs.example"] });
+    const app = createServer();
+    const res = await app.fetch(new Request(`${PUBLIC}/widget?theme=dark`));
+    const csp = res.headers.get("content-security-policy")!;
+    expect(csp).toContain("font-src 'self' https://docs.example data:");
+    expect(csp).toContain("style-src 'self' https://docs.example");
+  });
+
   test("an un-allowlisted external theme URL falls back to a built-in", async () => {
     configure();
     const app = createServer();

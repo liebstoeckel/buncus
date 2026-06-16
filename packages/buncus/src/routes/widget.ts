@@ -55,11 +55,14 @@ export function renderWidget(url: URL, lang?: string): Response {
   const t = resolveStrings(lang);
   const langAttr = lang ? ` lang="${escapeAttr(lang)}"${isRtl(lang) ? ' dir="rtl"' : ""}` : "";
 
-  const styleSrc = ["'self'", ...cfg.themeOrigins].join(" ");
+  // Shared by style-src + font-src: a theme origin trusted to serve the iframe's
+  // CSS is the same trust class for the webfont that CSS references.
+  const themeSrc = ["'self'", ...cfg.themeOrigins].join(" ");
   const csp = [
     "default-src 'none'",
     "script-src 'self'",
-    `style-src ${styleSrc}`,
+    `style-src ${themeSrc}`,
+    `font-src ${themeSrc} data:`,
     "img-src https: data:",
     "connect-src 'self'",
     "base-uri 'none'",
