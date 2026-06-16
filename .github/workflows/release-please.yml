@@ -190,10 +190,18 @@ jobs:
 
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
-      # helm is preinstalled on the ubuntu-latest runner image. Log it in to GHCR
-      # as an OCI registry with the built-in token (packages: write is enough).
+      # helm is preinstalled on the ubuntu-latest runner image; the built-in token
+      # (packages: write) is enough to push. helm and cosign use separate
+      # credential stores (helm's own registry config vs. the Docker keychain
+      # cosign reads), so authenticate both or the signature upload fails with
+      # UNAUTHORIZED even though the chart push succeeded.
       - name: Log in to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username "${{ github.actor }}" --password-stdin
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | helm registry login ghcr.io --username "$GHCR_USER" --password-stdin
+          echo "$GHCR_TOKEN" | cosign login ghcr.io --username "$GHCR_USER" --password-stdin
 
       # Package and push. The tag is vX.Y.Z; --version/--app-version pin the chart
       # to X.Y.Z, so helm writes buncus-X.Y.Z.tgz no matter the in-repo Chart.yaml.
