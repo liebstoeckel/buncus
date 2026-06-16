@@ -171,10 +171,12 @@ jobs:
         run: gh release upload "${{ needs.release-please.outputs.tag_name }}" packages/buncus/dist/release/* --clobber
 
   # Package the Helm chart and push it as an OCI artifact to GHCR, then
-  # keyless-cosign-sign the pushed manifest digest. The chart's version /
-  # appVersion were bumped in lock-step with the image by release-please
-  # (extra-files in release-please-config.json), so the chart version equals the
-  # image version for this tag.
+  # keyless-cosign-sign the pushed manifest digest. The chart version and
+  # appVersion are set from the release tag at package time, so the published
+  # chart version always equals the image version for this tag regardless of
+  # what charts/buncus/Chart.yaml currently holds. release-please also bumps that
+  # file in lock-step (extra-files in release-please-config.json) so a source
+  # checkout matches, but the publish does not depend on it.
   publish-chart:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
@@ -193,10 +195,10 @@ jobs:
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username "${{ github.actor }}" --password-stdin
 
-      # Package and push. The tag is vX.Y.Z; the chart version is X.Y.Z (== the
-      # bumped Chart.yaml), so the packaged file is buncus-X.Y.Z.tgz. Capture the
-      # pushed digest from helm's output and sign that immutable digest, mirroring
-      # the image's keyless-signing posture.
+      # Package and push. The tag is vX.Y.Z; --version/--app-version pin the chart
+      # to X.Y.Z, so helm writes buncus-X.Y.Z.tgz no matter the in-repo Chart.yaml.
+      # Capture the pushed digest from helm's output and sign that immutable digest,
+      # mirroring the image's keyless-signing posture.
       - name: Package, push, and sign chart
         env:
           OWNER: ${{ github.repository_owner }}
@@ -204,7 +206,7 @@ jobs:
         run: |
           set -euo pipefail
           version="${TAG#v}"
-          helm package charts/buncus --destination dist-chart
+          helm package charts/buncus --version "$version" --app-version "$version" --destination dist-chart
           out=$(helm push "dist-chart/buncus-${version}.tgz" "oci://ghcr.io/${OWNER}/charts" 2>&1 | tee /dev/stderr)
           digest=$(echo "$out" | awk '/[Dd]igest:/ { print $NF }')
           test -n "$digest"
