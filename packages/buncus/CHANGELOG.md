@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.3](https://github.com/liebstoeckel/buncus/compare/v0.1.2...v0.1.3) (2026-06-16)
+
+
+### Bug Fixes
+
+* document chart version pinning in the deploy guide ([655c43f](https://github.com/liebstoeckel/buncus/commit/655c43f7571ff40da56b361518f47d6d5f8bd209))
+* document chart version pinning in the deploy guide ([655c43f](https://github.com/liebstoeckel/buncus/commit/655c43f7571ff40da56b361518f47d6d5f8bd209))
+* document chart version pinning in the deploy guide ([2449961](https://github.com/liebstoeckel/buncus/commit/24499613ddcb44232ce028deb36406acd2542e31))
+
 ## [0.1.2](https://github.com/liebstoeckel/buncus/compare/v0.1.1...v0.1.2) (2026-06-16)
 
 
