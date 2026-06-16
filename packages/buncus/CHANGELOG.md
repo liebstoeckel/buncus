@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/liebstoeckel/buncus/compare/v0.1.3...v0.1.4) (2026-06-16)
+
+
+### Bug Fixes
+
+* document verifying the cosign chart signature in the deploy guide ([0ac6911](https://github.com/liebstoeckel/buncus/commit/0ac691112f05c222fb3dc46c0a4a747d74b1816f))
+
 ## [0.1.3](https://github.com/liebstoeckel/buncus/compare/v0.1.2...v0.1.3) (2026-06-16)
 
 
