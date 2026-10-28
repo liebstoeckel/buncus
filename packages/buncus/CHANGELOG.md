@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/liebstoeckel/buncus/compare/v0.1.4...v0.1.5) (2026-10-28)
+
+
+### Bug Fixes
+
+* **server:** require Bun 1.4.4 or newer ([d756b30](https://github.com/liebstoeckel/buncus/commit/d756b302ca0d76f3da9b636efe9a6bf4fb7d1d7b))
+
 ## [0.1.4](https://github.com/liebstoeckel/buncus/compare/v0.1.3...v0.1.4) (2026-06-16)
 
 
