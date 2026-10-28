@@ -28,6 +28,9 @@
     "email": "contact@liebstoeckel.app"
   },
   "type": "module",
+  "engines": {
+    "bun": ">=1.4.4"
+  },
   "bin": {
     "buncus": "./src/server.ts"
   },
