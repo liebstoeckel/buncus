@@ -24,7 +24,7 @@
 ########################################
 # Stage 1 — build the standalone binary
 ########################################
-FROM oven/bun:1.3.14 AS builder
+FROM oven/bun:1.4.4 AS builder
 WORKDIR /app
 
 # Install deps first (cached unless a manifest or the lockfile changes).
